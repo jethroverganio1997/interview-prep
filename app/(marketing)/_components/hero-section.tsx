@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
-import { BorderBeam } from "@/components/ui/border-beam";
+import { AnimatedShinyText } from "@/components/magic/animated-shiny-text";
+import { BorderBeam } from "@/components/magic/border-beam";
 import { ArrowRight } from "lucide-react";
 import { useInView } from "framer-motion";
 import { useRef } from "react";

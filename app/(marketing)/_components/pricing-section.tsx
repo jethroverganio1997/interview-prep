@@ -12,7 +12,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
-import { BorderBeam } from "@/components/ui/border-beam";
+import { BorderBeam } from "@/components/magic/border-beam";
 import { cn } from "@/lib/utils";
 import { motion, AnimatePresence } from "framer-motion";
 

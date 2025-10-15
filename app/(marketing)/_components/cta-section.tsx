@@ -2,7 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { Marquee } from "@/components/ui/marquee"
+import { Marquee } from "@/components/magic/marquee"
 import { CtaCard } from "@/components/ui/cta-card"
 import {
   BarChart,

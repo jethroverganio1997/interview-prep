@@ -74,7 +74,7 @@ export default function Header() {
               variant="ghost"
               className="text-sm font-medium transition-colors hover:text-primary"
             >
-              <Link href="/auth/login">Sign up</Link>
+              <Link href="/auth/login">Log in</Link>
             </Button>
             <Button variant="outline" className="text-sm" asChild>
               <Link href="/auth/sign-up">Sign up</Link>
