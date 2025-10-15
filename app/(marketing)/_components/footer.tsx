@@ -1,112 +1,158 @@
-import Link from "next/link"
-import { Separator } from "@/components/ui/separator"
-import { Github, Twitter, MessageSquare } from "lucide-react"
-import { footerLinks } from "@/lib/constants/navigation"
+import Link from "next/link";
+import { Github, Twitter, MessageSquare } from "lucide-react";
+
+const footerNavs = [
+  {
+    label: "Product",
+    items: [
+      {
+        href: "/",
+        name: "Email Collection",
+      },
+      {
+        href: "/pricing",
+        name: "Pricing",
+      },
+      {
+        href: "/faq",
+        name: "FAQ",
+      },
+    ],
+  },
+  {
+    label: "Community",
+    items: [
+      {
+        href: "/",
+        name: "Discord",
+      },
+      {
+        href: "/",
+        name: "Twitter",
+      },
+      {
+        href: "mailto:hello@chatcollect.com",
+        name: "Email",
+      },
+    ],
+  },
+  {
+    label: "Legal",
+    items: [
+      {
+        href: "/terms",
+        name: "Terms",
+      },
+      {
+        href: "/privacy",
+        name: "Privacy",
+      },
+    ],
+  },
+];
+
+const footerSocials = [
+  {
+    href: "https://discord.com",
+    name: "Discord",
+    icon: MessageSquare,
+  },
+  {
+    href: "https://twitter.com",
+    name: "Twitter",
+    icon: Twitter,
+  },
+  {
+    href: "https://github.com",
+    name: "GitHub",
+    icon: Github,
+  },
+];
 
 export default function Footer() {
   return (
-    <footer className="border-t bg-background">
-      <div className="container mx-auto px-4 py-16">
-        <div className="grid gap-8 lg:grid-cols-5 md:grid-cols-3">
-          {/* Brand Column */}
-          <div className="lg:col-span-2">
-            <Link href="/" className="flex items-center space-x-2 mb-4">
-              <span className="font-bold text-xl">Magic UI</span>
+    <footer>
+      <div className="mx-auto w-full max-w-screen-xl xl:pb-2">
+        <div className="gap-4 p-4 px-8 py-16 sm:pb-16 md:flex md:justify-between">
+          <div className="mb-12 flex flex-col gap-4">
+            <Link href="/" className="flex items-center gap-2">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="1"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="lucide lucide-floor-plan size-8"
+              >
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+                <path d="M9 3v7" />
+                <path d="M21 10h-7" />
+                <path d="M3 15h9" />
+              </svg>
+              <span className="self-center whitespace-nowrap text-2xl font-semibold dark:text-white">
+                Svee UI
+              </span>
             </Link>
-            <p className="text-sm text-muted-foreground max-w-xs mb-6">
-              Build beautiful, high-converting landing pages in minutes with
-              our component library.
+            <p className="max-w-xs text-muted-foreground">
+              UI Library for Design Engineers
             </p>
-            {/* Social Links */}
-            <div className="flex gap-4">
-              <Link
-                href="https://twitter.com"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Twitter"
-              >
-                <Twitter className="h-5 w-5" />
-              </Link>
-              <Link
-                href="https://github.com"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="GitHub"
-              >
-                <Github className="h-5 w-5" />
-              </Link>
-              <Link
-                href="/discord"
-                className="text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Discord"
-              >
-                <MessageSquare className="h-5 w-5" />
-              </Link>
-            </div>
           </div>
-
-          {/* Product Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Product</h3>
-            <ul className="space-y-3">
-              {footerLinks.product.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Community Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Community</h3>
-            <ul className="space-y-3">
-              {footerLinks.community.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Legal Links */}
-          <div>
-            <h3 className="font-semibold mb-4">Legal</h3>
-            <ul className="space-y-3">
-              {footerLinks.legal.map((link) => (
-                <li key={link.href}>
-                  <Link
-                    href={link.href}
-                    className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  >
-                    {link.name}
-                  </Link>
-                </li>
-              ))}
-            </ul>
+          <div className="grid grid-cols-1 gap-8 sm:grid-cols-3 sm:gap-10">
+            {footerNavs.map((nav) => (
+              <div key={nav.label}>
+                <h2 className="mb-6 text-sm font-medium uppercase tracking-tighter text-foreground">
+                  {nav.label}
+                </h2>
+                <ul className="grid gap-2">
+                  {nav.items.map((item, index) => (
+                    <li key={index}>
+                      <Link
+                        href={item.href}
+                        className="cursor-pointer text-sm font-[450] text-muted-foreground duration-200 hover:text-foreground"
+                      >
+                        {item.name}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
         </div>
 
-        <Separator className="my-8" />
-
-        {/* Copyright */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Magic UI. All rights reserved.
-          </p>
-          <p className="text-sm text-muted-foreground">
-            Built with ❤️ using Next.js and shadcn/ui
-          </p>
+        <div className="flex flex-col gap-2 rounded-md border-neutral-700/20 px-8 py-4 sm:flex sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex items-center space-x-5 sm:mt-0 sm:justify-center">
+            {footerSocials.map((social) => {
+              const IconComponent = social.icon;
+              return (
+                <Link
+                  key={social.name}
+                  href={social.href}
+                  className="text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={social.name}
+                >
+                  <IconComponent className="h-4 w-4" />
+                  <span className="sr-only">{social.name}</span>
+                </Link>
+              );
+            })}
+          </div>
+          <span className="text-sm text-muted-foreground sm:text-center">
+            Copyright © {new Date().getFullYear()}{" "}
+            <Link
+              href="/"
+              className="cursor-pointer hover:text-foreground transition-colors"
+            >
+              Svee UI
+            </Link>
+            . All Rights Reserved.
+          </span>
         </div>
       </div>
     </footer>
-  )
+  );
 }
