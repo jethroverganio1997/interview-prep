@@ -111,7 +111,8 @@
     --shadow-2xl: 0 1px 3px 0px hsl(0 0% 0% / 0.25);
 }
 
-@theme inline {
+@theme {
+    /* Color Variables */
     --color-background: var(--background);
     --color-foreground: var(--foreground);
     --color-card: var(--card);
@@ -145,15 +146,18 @@
     --color-sidebar-border: var(--sidebar-border);
     --color-sidebar-ring: var(--sidebar-ring);
 
-    --font-sans: var(--font-sans);
-    --font-mono: var(--font-mono);
-    --font-serif: var(--font-serif);
+    /* Font Families */
+    --font-family-sans: var(--font-sans);
+    --font-family-mono: var(--font-mono);
+    --font-family-serif: var(--font-serif);
 
+    /* Border Radius */
     --radius-sm: calc(var(--radius) - 4px);
     --radius-md: calc(var(--radius) - 2px);
     --radius-lg: var(--radius);
     --radius-xl: calc(var(--radius) + 4px);
 
+    /* Shadows */
     --shadow-2xs: var(--shadow-2xs);
     --shadow-xs: var(--shadow-xs);
     --shadow-sm: var(--shadow-sm);
