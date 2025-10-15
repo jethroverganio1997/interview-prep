@@ -80,7 +80,7 @@ export default function CTASection() {
   }, [])
 
   return (
-    <section id="cta" className="py-20 lg:py-32">
+    <section id="cta">
       <div className="py-14">
         <div className="flex w-full flex-col items-center justify-center">
           <div className="relative flex w-full flex-col items-center justify-center overflow-hidden">

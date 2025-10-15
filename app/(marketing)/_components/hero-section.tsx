@@ -89,7 +89,7 @@ export default function HeroSection() {
               src="/images/hero-light.png"
               alt="Hero section illustration"
               fill
-              className="object-contain object-top rounded-[inherit]"
+              className="object-cover object-top rounded-[inherit]"
               priority
             />
           </div>

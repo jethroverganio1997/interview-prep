@@ -8,7 +8,6 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -146,38 +145,37 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="mx-auto grid w-full justify-center gap-4 px-6 sm:px-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid w-full justify-center gap-6 px-8 sm:px-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {pricingTiers.map((tier, index) => (
             <Card
               key={tier.id}
               className={cn(
-                "relative flex max-w-[400px] flex-col gap-8 overflow-hidden p-4 py-8 sm:pb-8",
+                "relative flex max-w-[400px] flex-col overflow-hidden rounded-2xl border  shadow-sm",
                 tier.isFeatured && "border-2 border-primary shadow-lg scale-105"
               )}
             >
               {tier.isFeatured && <BorderBeam />}
 
               {tier.isMostPopular && (
-                <div className="absolute -top-4 left-1/2 -translate-x-1/2">
+                <div className="absolute -top-2 left-1/2 -translate-x-1/2 z-10">
                   <Badge className="shadow-sm">Most Popular</Badge>
                 </div>
               )}
 
-              <CardHeader className="p-0">
-                <div className="flex items-center">
-                  <div className="ml-0">
-                    <CardTitle className="text-base font-semibold leading-7">
-                      {tier.name}
-                    </CardTitle>
-                    <CardDescription className="h-12 text-sm leading-5">
-                      {tier.description}
-                    </CardDescription>
-                  </div>
+              {/* Header */}
+              <CardHeader>
+                <div className="flex flex-col items-start">
+                  <CardTitle className="text-2xl font-bold mb-2 text-black dark:text-white">
+                    {tier.name}
+                  </CardTitle>
+                  <CardDescription className="text-base text-black/80 dark:text-white/80">
+                    {tier.description}
+                  </CardDescription>
                 </div>
               </CardHeader>
 
-              <CardContent className="flex-1 p-0">
-                {/* Price with Animation */}
+              {/* Price Display */}
+              <CardContent>
                 <AnimatePresence mode="wait">
                   <motion.div
                     key={interval}
@@ -185,69 +183,62 @@ export default function PricingSection() {
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: -20, opacity: 0 }}
                     transition={{ duration: 0.3, delay: index * 0.04 }}
-                    className="flex flex-row gap-1 mb-8"
+                    className="flex items-baseline justify-start mb-8"
                   >
                     <span className="text-4xl font-bold text-black dark:text-white">
                       $
                       {interval === "month"
                         ? tier.monthlyPrice
                         : tier.yearlyPrice}
-                      <span className="text-xs"> / {interval}</span>
                     </span>
+                    <span className="text-base">/ {interval}</span>
                   </motion.div>
                 </AnimatePresence>
 
-                {/* Features */}
-                <hr className="m-0 mb-6 h-px w-full border-none bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0" />
+                {/* CTA Button */}
+                <div>
+                  <Button
+                    className={cn(
+                      "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter",
+                      "transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2"
+                    )}
+                    variant={tier.isFeatured ? "default" : "outline"}
+                    size="lg"
+                    disabled={isLoading}
+                    onClick={() => handleSubscribe(tier.id)}
+                  >
+                    <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
+                    {isLoading && loadingId === tier.id ? (
+                      <>
+                        <Loader2 className="mr-2 size-4 animate-spin" />
+                        Subscribing
+                      </>
+                    ) : (
+                      "Subscribe"
+                    )}
+                  </Button>
+                </div>
 
-                {tier.features && tier.features.length > 0 && (
-                  <ul className="flex flex-col gap-2 font-normal">
-                    {tier.features.map((feature, idx) => (
-                      <li
-                        key={idx}
-                        className="flex items-center gap-3 text-xs font-medium text-black dark:text-white"
-                      >
-                        <Check className="size-5 shrink-0 rounded-full bg-green-400 p-[2px] text-black dark:text-white" />
-                        <span className="flex">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                {/* Features List */}
+                <div className="relative space-y-4 py-6">
+                  <div className="h-px w-full bg-gradient-to-r from-neutral-200/0 via-neutral-500/30 to-neutral-200/0 dark:from-neutral-800/0 dark:via-neutral-500/30 dark:to-neutral-800/0" />
+                  {tier.features && tier.features.length > 0 && (
+                    <ul className="space-y-3">
+                      {tier.features.map((feature, idx) => (
+                        <li key={idx} className="flex items-start gap-3">
+                          <Check className="size-5 shrink-0 text-primary mt-0.5" />
+                          <span className="text-sm text-black dark:text-white">
+                            {feature}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
               </CardContent>
-
-              <CardFooter className="p-0">
-                <Button
-                  className={cn(
-                    "group relative w-full gap-2 overflow-hidden text-lg font-semibold tracking-tighter",
-                    "transform-gpu ring-offset-current transition-all duration-300 ease-out hover:ring-2 hover:ring-primary hover:ring-offset-2"
-                  )}
-                  variant={tier.isFeatured ? "default" : "outline"}
-                  size="lg"
-                  disabled={isLoading}
-                  onClick={() => handleSubscribe(tier.id)}
-                >
-                  <span className="absolute right-0 -mt-12 h-32 w-8 translate-x-12 rotate-12 transform-gpu bg-white opacity-10 transition-all duration-1000 ease-out group-hover:-translate-x-96 dark:bg-black" />
-                  {isLoading && loadingId === tier.id ? (
-                    <>
-                      <Loader2 className="mr-2 size-4 animate-spin" />
-                      Subscribing
-                    </>
-                  ) : (
-                    "Subscribe"
-                  )}
-                </Button>
-              </CardFooter>
             </Card>
           ))}
         </div>
-
-        {/* Enterprise note */}
-        <p className="text-center text-sm text-muted-foreground mt-8">
-          Need a custom plan?{" "}
-          <a href="/contact" className="text-primary hover:underline">
-            Contact our sales team
-          </a>
-        </p>
       </div>
     </section>
   );
