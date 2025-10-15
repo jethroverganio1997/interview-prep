@@ -110,7 +110,7 @@ export default function PricingSection() {
   }
 
   return (
-    <section id="pricing" className="py-20 lg:py-32">
+    <section id="pricing" className="py-16 md:py-20">
       <div className="container mx-auto px-4">
         {/* Section Header */}
         <div className="mx-auto max-w-5xl text-center mb-16">
@@ -142,12 +142,12 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="mx-auto grid w-full flex-col justify-center gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid w-full justify-center gap-4 px-6 sm:px-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
           {pricingTiers.map((tier, index) => (
             <Card
               key={tier.id}
               className={cn(
-                "relative flex max-w-[400px] flex-col gap-8 overflow-hidden p-4",
+                "relative flex max-w-[400px] flex-col gap-8 overflow-hidden p-4 py-8 sm:pb-8",
                 tier.isFeatured && "border-2 border-primary shadow-lg scale-105"
               )}
             >

@@ -140,11 +140,11 @@ export default function CTASection() {
             </Marquee>
 
             {/* Center Content */}
-            <div className="absolute z-10">
+            <div className="absolute z-10 mb-24">
               <div className="mx-auto size-24 rounded-[2rem] border bg-white/10 p-3 shadow-2xl backdrop-blur-md dark:bg-black/10 lg:size-32">
                 <HeartHandshake className="mx-auto size-16 text-black dark:text-white lg:size-24" />
               </div>
-              <div className="z-10 mt-4 flex flex-col items-center text-center text-primary">
+              <div className="z-10 mt-4 flex flex-col items-center text-center">
                 <h1 className="text-3xl font-bold lg:text-4xl">
                   Stop wasting time on design.
                 </h1>
