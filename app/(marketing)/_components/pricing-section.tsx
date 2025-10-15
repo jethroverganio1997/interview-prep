@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { Check, Loader2 } from "lucide-react"
-import { Badge } from "@/components/ui/badge"
-import { Button } from "@/components/ui/button"
+import { useState } from "react";
+import { Check, Loader2 } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -11,23 +11,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card"
-import { Switch } from "@/components/ui/switch"
-import { BorderBeam } from "@/components/ui/border-beam"
-import { cn } from "@/lib/utils"
-import { motion, AnimatePresence } from "framer-motion"
+} from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { cn } from "@/lib/utils";
+import { motion, AnimatePresence } from "framer-motion";
 
-type Interval = "month" | "year"
+type Interval = "month" | "year";
 
 interface PriceTier {
-  id: string
-  name: string
-  description: string
-  features: string[]
-  monthlyPrice: number
-  yearlyPrice: number
-  isMostPopular: boolean
-  isFeatured?: boolean
+  id: string;
+  name: string;
+  description: string;
+  features: string[];
+  monthlyPrice: number;
+  yearlyPrice: number;
+  isMostPopular: boolean;
+  isFeatured?: boolean;
 }
 
 const pricingTiers: PriceTier[] = [
@@ -64,7 +64,8 @@ const pricingTiers: PriceTier[] = [
   {
     id: "price_3",
     name: "Enterprise",
-    description: "An enterprise plan with advanced features for large organizations",
+    description:
+      "An enterprise plan with advanced features for large organizations",
     features: [
       "Custom AI solutions",
       "24/7 dedicated support",
@@ -93,21 +94,21 @@ const pricingTiers: PriceTier[] = [
     yearlyPrice: 800,
     isMostPopular: false,
   },
-]
+];
 
 export default function PricingSection() {
-  const [interval, setInterval] = useState<Interval>("month")
-  const [isLoading, setIsLoading] = useState(false)
-  const [loadingId, setLoadingId] = useState("")
+  const [interval, setInterval] = useState<Interval>("month");
+  const [isLoading, setIsLoading] = useState(false);
+  const [loadingId, setLoadingId] = useState("");
 
   const handleSubscribe = async (priceId: string) => {
-    setLoadingId(priceId)
-    setIsLoading(true)
+    setLoadingId(priceId);
+    setIsLoading(true);
     // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000))
-    setIsLoading(false)
-    setLoadingId("")
-  }
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    setIsLoading(false);
+    setLoadingId("");
+  };
 
   return (
     <section id="pricing" className="py-16 md:py-20">
@@ -123,8 +124,9 @@ export default function PricingSection() {
           </h2>
 
           <p className="mt-6 text-xl leading-8 text-black/80 dark:text-white">
-            Choose an <strong>affordable plan</strong> that&apos;s packed with the best features
-            for engaging your audience, creating customer loyalty, and driving sales.
+            Choose an <strong>affordable plan</strong> that&apos;s packed with
+            the best features for engaging your audience, creating customer
+            loyalty, and driving sales.
           </p>
         </div>
 
@@ -133,7 +135,9 @@ export default function PricingSection() {
           <Switch
             id="interval"
             checked={interval === "year"}
-            onCheckedChange={(checked) => setInterval(checked ? "year" : "month")}
+            onCheckedChange={(checked) =>
+              setInterval(checked ? "year" : "month")
+            }
           />
           <span>Annual</span>
           <span className="inline-block whitespace-nowrap rounded-full bg-black px-2.5 py-1 text-[11px] font-semibold uppercase leading-5 tracking-wide text-white dark:bg-white dark:text-black">
@@ -184,7 +188,10 @@ export default function PricingSection() {
                     className="flex flex-row gap-1 mb-8"
                   >
                     <span className="text-4xl font-bold text-black dark:text-white">
-                      ${interval === "month" ? tier.monthlyPrice : tier.yearlyPrice}
+                      $
+                      {interval === "month"
+                        ? tier.monthlyPrice
+                        : tier.yearlyPrice}
                       <span className="text-xs"> / {interval}</span>
                     </span>
                   </motion.div>
@@ -243,5 +250,5 @@ export default function PricingSection() {
         </p>
       </div>
     </section>
-  )
+  );
 }

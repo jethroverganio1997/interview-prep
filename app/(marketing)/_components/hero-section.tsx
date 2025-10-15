@@ -71,7 +71,7 @@ export default function HeroSection() {
         className="relative mt-32 animate-fade-up opacity-0 [--animation-delay:400ms] [perspective:2000px] after:absolute after:inset-0 after:z-50 after:bg-gradient-to-t after:from-background after:from-30% after:to-transparent"
       >
         <div
-          className={`rounded-xl border border-white/40 bg-background bg-opacity-[0.01] before:absolute before:bottom-1/2 before:left-0 before:top-0 before:size-full before:opacity-0 before:[background-image:linear-gradient(to_bottom,var(--color-one),var(--color-one),transparent_40%)] before:[filter:blur(180px)] ${
+          className={`rounded-xl border border-white/40 bg-background bg-opacity-[0.01] before:absolute before:bottom-1/2 before:left-0 before:top-0 before:size-full before:opacity-0 before:[background-image:linear-gradient(to_bottom,var(--color-one),var(--color-one),transparent_40%)] before:[filter:blur(80px)] ${
             isInView ? "before:animate-image-glow" : ""
           }`}
         >
@@ -84,7 +84,7 @@ export default function HeroSection() {
           />
 
           {/* Hero Images */}
-          <div className="relative block size-full rounded-[inherit] border object-contain dark:hidden aspect-video overflow-hidden">
+          <div className="relative block size-full rounded-[inherit] border object-contain dark:hidden aspect-[4/3] sm:aspect-video overflow-hidden">
             <Image
               src="/images/hero-light.png"
               alt="Hero section illustration"
@@ -94,7 +94,7 @@ export default function HeroSection() {
             />
           </div>
 
-          <div className="relative hidden size-full rounded-[inherit] border object-contain dark:block aspect-video overflow-hidden">
+          <div className="relative hidden size-full rounded-[inherit] border object-contain dark:block aspect-[4/3] sm:aspect-video overflow-hidden">
             <Image
               src="/images/hero-dark.png"
               alt="Hero section illustration"
