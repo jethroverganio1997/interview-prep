@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-Next.js 15.5.5 SaaS application using the App Router architecture with TypeScript, React 19, and Tailwind CSS 4. The project is configured with shadcn/ui components (New York style) and uses Turbopack for development and builds.
+Next.js 15.5.5 SaaS application using the App Router architecture with TypeScript, React 19, and Tailwind CSS 4. The project is configured with shadcn/ui components (New York style) and integrates Supabase for authentication and backend services.
 
 ## Development Commands
 
@@ -32,16 +32,24 @@ npm run lint
 - **Styling**: Tailwind CSS v4 with CSS variables approach
 - **UI Components**: shadcn/ui (New York style variant)
 - **Icons**: Lucide React
+- **Backend**: Supabase (authentication and database)
 
 ### Directory Structure
 - `app/` - Next.js App Router pages and layouts
   - `layout.tsx` - Root layout with Geist font configuration
   - `page.tsx` - Home page
+  - `auth/` - Authentication-related pages (login, sign-up, forgot-password, etc.)
+  - `protected/` - Protected routes requiring authentication
   - `globals.css` - Global styles with Tailwind and theme configuration
-- `lib/` - Utility functions
+- `lib/` - Utility functions and Supabase clients
   - `utils.ts` - Contains `cn()` helper for className merging
-- `components/` - React components (not yet created, but aliased)
-  - `ui/` - shadcn/ui components will be added here
+  - `client.ts` - Supabase browser client factory
+  - `server.ts` - Supabase server client factory for Server Components/Actions
+  - `middleware.ts` - Session management utilities for Next.js middleware
+- `components/` - React components
+  - `ui/` - shadcn/ui base components (button, card, input, label)
+  - Authentication form components (login-form, sign-up-form, etc.)
+- `middleware.ts` - Next.js middleware for authentication and session refresh
 
 ### Path Aliases
 TypeScript and shadcn/ui are configured with these aliases:
@@ -66,8 +74,41 @@ Components are configured with:
 - CSS variables enabled
 - RSC and TypeScript enabled
 - Icon library: lucide-react
+- Custom registry: `@magicui` available at https://magicui.design/r/{name}.json
 
 When adding new shadcn/ui components, they will be installed to `components/ui/` using the configured aliases.
+
+### Supabase Architecture
+
+#### Client Creation Patterns
+The project implements three distinct Supabase client patterns:
+
+1. **Browser Client** (`lib/client.ts`):
+   - Use in Client Components
+   - Created via `createBrowserClient()`
+   - Accesses environment variables: `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY`
+
+2. **Server Client** (`lib/server.ts`):
+   - Use in Server Components and Server Actions
+   - Created via `createServerClient()` with Next.js cookies integration
+   - **IMPORTANT**: Always create a new client within each function (do not use global variables for Fluid compute compatibility)
+   - Handles cookie management for session persistence
+
+3. **Middleware Client** (`lib/middleware.ts`):
+   - Specialized client for Next.js middleware
+   - Manages session refresh and authentication state
+   - **CRITICAL**: Must call `supabase.auth.getClaims()` immediately after client creation to prevent random logouts
+
+#### Authentication Flow
+- Middleware (`middleware.ts`) runs on all routes except static files and images
+- Unauthenticated users are redirected to `/auth/login` (except for routes starting with `/auth`)
+- Authentication pages include: login, sign-up, sign-up-success, forgot-password, update-password, and error
+- Protected routes live under `/protected/` directory
+
+#### Environment Variables
+Required Supabase environment variables (stored in `.env.local`):
+- `NEXT_PUBLIC_SUPABASE_URL` - Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_OR_ANON_KEY` - Supabase anonymous/public key
 
 ## TypeScript Configuration
 - Target: ES2017
