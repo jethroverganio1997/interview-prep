@@ -10,7 +10,7 @@
 - [database-migration](sop/database-migration.md) — Steps for creating and applying Supabase migrations.
 
 ### Tasks
-- _No task documents yet. Add feature PRDs under `tasks/` and list them here._
+- [dashboard-job-listings](tasks/dashboard-job-listings.md) – Supabase-backed job cards powering the dashboard.
 
 ## How to Use
 1. Start with **architecture-overview** for a project tour.

@@ -29,7 +29,7 @@ lib/
 
 ## Core Modules
 - `app/<route/feature>/<_components>/` are components use by that specific route or feature that is not shared in diff route
-- `app/<route/feature>/<_lib>/` are files like hooks, actions, state-management like zod, constants etc. that is use by that specific route or feature that is not shared in diff route
+- `app/<route/feature>/<_lib>/` centralises non-component logic for that feature. Each `_lib/` is split further into focused modules (e.g. `types.ts` for DTOs, `actions.ts` for server/data calls, `helpers.ts` for formatting or mapping utilities) so that pages and components stay lean. Route-level `types.ts` files should re-export aliases from the generated Supabase schema (see `types/database.types.ts`) instead of defining shapes manually.
 - `app/dashboard/page.tsx` gates access through Supabase auth, then renders data-driven UI sections built from local components within the dashboard segment.
 - `components/ui/` mirrors the shadcn/ui registry, offering low-level building blocks (`card`, `button`, `badge`, etc.).
 - `components/` houses higher-level widgets such as `header.tsx`, `footer.tsx`, which use in multiple route.
@@ -51,5 +51,5 @@ lib/
 ## Extensibility Notes
 - New routes should follow the existing segment pattern (e.g., grouping marketing pages under `app/(marketing)`).
 - Feature-specific components belong in dedicated subfolders under `app/<route>/_components/` to avoid polluting the root components.
+- Keep supporting code for a route inside `app/<route>/_lib/`, grouping by responsibility (`types.ts`, `actions.ts`, `helpers.ts`, etc.) to make the contract between server logic and UI explicit.
 - Shared components across multiple route belong in dedicated subfolders under `components/` to avoid polluting the shadcn primitives.
-
