@@ -32,7 +32,7 @@ interface PriceTier {
 const pricingTiers: PriceTier[] = [
   {
     id: "price_1",
-    name: "Basic",
+    name: "Free",
     description: "A basic plan for startups and individual users",
     features: [
       "AI-powered analytics",
@@ -40,7 +40,7 @@ const pricingTiers: PriceTier[] = [
       "5 projects limit",
       "Access to basic AI tools",
     ],
-    monthlyPrice: 10,
+    monthlyPrice: 0,
     yearlyPrice: 100,
     isMostPopular: false,
   },
@@ -75,22 +75,6 @@ const pricingTiers: PriceTier[] = [
     ],
     monthlyPrice: 50,
     yearlyPrice: 500,
-    isMostPopular: false,
-  },
-  {
-    id: "price_4",
-    name: "Ultimate",
-    description: "The ultimate plan with all features for industry leaders",
-    features: [
-      "Bespoke AI development",
-      "White-glove support",
-      "Unlimited projects",
-      "Priority access to new AI tools",
-      "Custom integrations",
-      "Highest data security and compliance",
-    ],
-    monthlyPrice: 80,
-    yearlyPrice: 800,
     isMostPopular: false,
   },
 ];
@@ -145,7 +129,7 @@ export default function PricingSection() {
         </div>
 
         {/* Pricing Grid */}
-        <div className="mx-auto grid w-full justify-center gap-6 px-8 sm:px-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mx-auto grid w-full justify-center gap-6 px-8 sm:px-8 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
           {pricingTiers.map((tier, index) => (
             <Card
               key={tier.id}

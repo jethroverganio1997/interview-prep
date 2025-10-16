@@ -8,6 +8,7 @@ import { ArrowRight } from "lucide-react";
 import { useInView } from "framer-motion";
 import { useRef } from "react";
 import Image from "next/image";
+import { Particles } from "../../../components/magic/particles";
 
 export default function HeroSection() {
   const ref = useRef(null);
@@ -18,6 +19,7 @@ export default function HeroSection() {
       id="hero"
       className="relative mx-auto py-16 max-w-[80rem] px-6 text-center md:px-8"
     >
+       <Particles className="absolute w-full"/>
       {/* Announcement Badge */}
       <div className="group inline-flex h-7 -translate-y-4 animate-fade-in items-center justify-between gap-1 rounded-full border border-white/5 bg-white/10 px-3 text-xs text-white opacity-0 transition-all ease-in hover:cursor-pointer hover:bg-white/20 dark:text-black backdrop-blur-sm [--animation-delay:0ms]">
         <AnimatedShinyText className="inline-flex items-center justify-center">
