@@ -21,8 +21,8 @@ Standardize how we add new routes to the Next.js App Router while preserving sha
 
 5. **Styling & Components**  
    - Compose UI from `@/components/ui/*` primitives.  
-   - Place any new global pieces under `components/<feature>/` and import via absolute aliases.
-   - components that are globally use or use by 2 or more route is place in here
+   - Place any new global pieces under `@/components/<name>/` and import via absolute aliases.
+   - components that are globally use or use by 2 or more route is place in `@/components/<name>/`
 
 6. **Testing**  
    - Run `npm run dev` and manually verify the route, auth guards, and navigation integration.  
@@ -31,5 +31,6 @@ Standardize how we add new routes to the Next.js App Router while preserving sha
 ## Checklist
 - [ ] Route file created in the correct segment  
 - [ ] Auth guard implemented where required  
-- [ ] New components stored in `components/<feature>/`  
+- [ ] New global components stored in `components/<name>/`  
+- [ ] Specific feature components stored in `app/<route or subroutes>/<_components>/`  
 - [ ] Manual testing performed and recorded

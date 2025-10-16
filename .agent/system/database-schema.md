@@ -13,7 +13,7 @@ There are no application-defined tables yet. Any new tables should be created vi
 ## Creating New Schema
 1. Run `supabase migration new <name>` to scaffold a migration file.
 2. Edit the generated SQL to define tables or functions.
-3. Apply locally with `supabase db reset` or `supabase db diff`.
+3. Apply remotely with `supabase db reset --linked`.
 4. Commit both the migration and updates to this document describing the new entities.
 
 ## Future Guidance
