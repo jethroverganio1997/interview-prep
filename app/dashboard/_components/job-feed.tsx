@@ -1,9 +1,7 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Bookmark, FileSearch, Loader2 } from "lucide-react";
 
-import { createClient } from "@/lib/client";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
@@ -11,250 +9,25 @@ import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
 
 import { JobCard } from "./job-card";
-import { mapRowToCard } from "../_lib/helpers";
-import {
-  getJobListings,
-  removeSavedJob,
-  saveJob,
-} from "../_lib/actions";
-import type { JobListingRow } from "../_lib/types";
+import { useJobFeed, type UseJobFeedOptions } from "../_lib/use-job-feed";
 
-const PAGE_SIZE = 9;
+type JobFeedProps = UseJobFeedOptions;
 
-interface JobFeedProps {
-  initialRows: JobListingRow[];
-  initialSavedJobIds: string[];
-  initialHasMore: boolean;
-  userId: string | null;
-  initialError?: string | null;
-}
-
-export function JobFeed({
-  initialRows,
-  initialSavedJobIds,
-  initialHasMore,
-  userId,
-  initialError = null,
-}: JobFeedProps) {
-  const supabase = useMemo(() => createClient(), []);
-  const [searchInput, setSearchInput] = useState("");
-  const debouncedSearch = useDebouncedValue(searchInput, 400);
-  const [savedOnly, setSavedOnly] = useState(false);
-  const [jobs, setJobs] = useState<JobListingRow[]>(initialRows);
-  const [hasMore, setHasMore] = useState(initialHasMore);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isFetchingMore, setIsFetchingMore] = useState(false);
-  const [fetchError, setFetchError] = useState<string | null>(initialError);
-  const [savedJobIds, setSavedJobIds] = useState<Set<string>>(
-    () => new Set(initialSavedJobIds)
-  );
-  const [pendingSavedIds, setPendingSavedIds] = useState<Set<string>>(
-    () => new Set()
-  );
-
-  const observerRef = useRef<IntersectionObserver | null>(null);
-  const loadMoreRef = useRef<HTMLDivElement | null>(null);
-  const initialRenderRef = useRef(true);
-
-  const resetError = useCallback(() => setFetchError(null), []);
-
-  const refreshListings = useCallback(async () => {
-    setIsLoading(true);
-    resetError();
-
-    const result = await getJobListings(supabase, {
-      searchTerm: debouncedSearch || undefined,
-      savedOnly,
-      limit: PAGE_SIZE,
-      offset: 0,
-      userId,
-    });
-
-    if (result.error) {
-      setJobs([]);
-      setHasMore(false);
-      setFetchError(result.error.message ?? "Failed to load job listings.");
-      setIsLoading(false);
-      return;
-    }
-
-    setJobs(result.data);
-    setHasMore(result.hasMore);
-    setSavedJobIds((prev) => {
-      const next = new Set(prev);
-      result.savedJobIds.forEach((id) => next.add(id));
-      return next;
-    });
-    setFetchError(null);
-    setIsLoading(false);
-  }, [
-    supabase,
-    debouncedSearch,
+export function JobFeed(props: JobFeedProps) {
+  const {
+    searchInput,
+    setSearchInput,
+    clearSearch,
     savedOnly,
-    userId,
-    resetError,
-  ]);
-
-  const loadMore = useCallback(async () => {
-    if (isFetchingMore || isLoading || !hasMore) {
-      return;
-    }
-
-    setIsFetchingMore(true);
-    resetError();
-
-    const result = await getJobListings(supabase, {
-      searchTerm: debouncedSearch || undefined,
-      savedOnly,
-      limit: PAGE_SIZE,
-      offset: jobs.length,
-      userId,
-    });
-
-    if (result.error) {
-      setFetchError(result.error.message ?? "Unable to load more jobs.");
-      setHasMore(false);
-      setIsFetchingMore(false);
-      return;
-    }
-
-    setJobs((prev) => [...prev, ...result.data]);
-    setHasMore(result.hasMore);
-    setSavedJobIds((prev) => {
-      const next = new Set(prev);
-      result.savedJobIds.forEach((id) => next.add(id));
-      return next;
-    });
-    setIsFetchingMore(false);
-  }, [
-    supabase,
+    setSavedOnly,
     debouncedSearch,
-    savedOnly,
-    jobs.length,
-    userId,
-    hasMore,
-    isFetchingMore,
+    cards,
+    fetchError,
     isLoading,
-    resetError,
-  ]);
-
-  const handleToggleSave = useCallback(
-    async (jobId: string, currentlySaved: boolean) => {
-      if (!userId) {
-        return;
-      }
-
-      setPendingSavedIds((prev) => {
-        const next = new Set(prev);
-        next.add(jobId);
-        return next;
-      });
-      resetError();
-
-      try {
-        if (currentlySaved) {
-          const { error } = await removeSavedJob(
-            supabase,
-            userId,
-            jobId
-          );
-
-          if (error) {
-            throw error;
-          }
-
-          setSavedJobIds((prev) => {
-            const next = new Set(prev);
-            next.delete(jobId);
-            return next;
-          });
-
-          if (savedOnly) {
-            setJobs((prev) =>
-              prev.filter((row) => row.job_id !== jobId)
-            );
-            void refreshListings();
-          }
-        } else {
-          const { error } = await saveJob(supabase, userId, jobId);
-
-          if (error) {
-            throw error;
-          }
-
-          setSavedJobIds((prev) => {
-            const next = new Set(prev);
-            next.add(jobId);
-            return next;
-          });
-        }
-      } catch (error) {
-        console.error(error);
-        setFetchError("Unable to update saved jobs. Please try again.");
-      } finally {
-        setPendingSavedIds((prev) => {
-          const next = new Set(prev);
-          next.delete(jobId);
-          return next;
-        });
-      }
-    },
-    [userId, supabase, savedOnly, refreshListings, resetError]
-  );
-
-  useEffect(() => {
-    if (initialRenderRef.current) {
-      initialRenderRef.current = false;
-      return;
-    }
-
-    void refreshListings();
-  }, [refreshListings]);
-
-  useEffect(() => {
-    if (!hasMore) {
-      return;
-    }
-
-    const node = loadMoreRef.current;
-    if (!node) {
-      return;
-    }
-
-    observerRef.current?.disconnect();
-
-    observerRef.current = new IntersectionObserver(
-      (entries) => {
-        if (entries[0]?.isIntersecting) {
-          void loadMore();
-        }
-      },
-      {
-        rootMargin: "240px 0px 0px 0px",
-      }
-    );
-
-    observerRef.current.observe(node);
-
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, [loadMore, hasMore]);
-
-  useEffect(() => {
-    return () => {
-      observerRef.current?.disconnect();
-    };
-  }, []);
-
-  const cards = jobs.map((row) => {
-    const isSaved = savedJobIds.has(row.job_id);
-    return {
-      ...mapRowToCard(row, isSaved),
-      onToggleSave: () => handleToggleSave(row.job_id, isSaved),
-      disableSave: pendingSavedIds.has(row.job_id),
-    };
-  });
+    isFetchingMore,
+    hasMore,
+    loadMoreRef,
+  } = useJobFeed(props);
 
   const showEmptyState =
     !isLoading && cards.length === 0 && !fetchError;
@@ -279,7 +52,7 @@ export function JobFeed({
       )
     : debouncedSearch
       ? (
-          <Button type="button" onClick={() => setSearchInput("")}>
+          <Button type="button" onClick={clearSearch}>
             Clear search
           </Button>
         )
@@ -307,7 +80,7 @@ export function JobFeed({
               <Button
                 type="button"
                 variant="outline"
-                onClick={() => setSearchInput("")}
+                onClick={clearSearch}
               >
                 Clear
               </Button>
@@ -369,15 +142,4 @@ export function JobFeed({
       <div ref={loadMoreRef} />
     </div>
   );
-}
-
-function useDebouncedValue<T>(value: T, delay: number) {
-  const [debounced, setDebounced] = useState(value);
-
-  useEffect(() => {
-    const handle = window.setTimeout(() => setDebounced(value), delay);
-    return () => window.clearTimeout(handle);
-  }, [value, delay]);
-
-  return debounced;
 }

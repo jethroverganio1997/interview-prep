@@ -31,7 +31,8 @@ lib/
 - `app/<route/feature>/<_components>/` are components use by that specific route or feature that is not shared in diff route
 - `app/<route/feature>/<_lib>/` centralises non-component logic for that feature. Each `_lib/` is split further into focused modules (e.g. `types.ts` for DTOs, `actions.ts` for server/data calls, `helpers.ts` for formatting or mapping utilities) so that pages and components stay lean. Route-level `types.ts` files should re-export aliases from the generated Supabase schema (see `types/database.types.ts`) instead of defining shapes manually.
 - `app/dashboard/page.tsx` gates access through Supabase auth, fetches the initial job batch + saved IDs on the server, and hydrates the client job feed.
-- `app/dashboard/_components/job-feed.tsx` is a client boundary that manages debounced search, saved-job toggles, infinite scrolling, and Supabase mutations while rendering `JobCard` entries.
+- `app/dashboard/_components/job-feed.tsx` is now a thin client boundary that renders controls and cards while delegating all data operations to the colocated hook.
+- `app/dashboard/_lib/use-job-feed.ts` centralises the job feed client state, Supabase pagination/search, and optimistic saved-job handling so other dashboard widgets can reuse the same contract.
 - `components/ui/` mirrors the shadcn/ui registry, offering low-level building blocks (`card`, `button`, `badge`, etc.).
 - `components/ui/empty.tsx` brings the shadcn `Empty` primitive variants into the project for consistent empty-state building blocks.
 - `components/empty-state.tsx` composes those primitives into an app-level empty state with optional icons, actions, and footer links for reuse across features.
@@ -45,7 +46,7 @@ lib/
 
 ## State Management
 - Server state is derived on-demand in async server components.
-- Client state is kept minimal; interactive elements use local React state when needed.
+- Client state is kept minimal and organised through colocated hooks such as `useJobFeed` so views stay declarative while sharing behaviour where necessary.
 
 ## Assets & Static Content
 - Static files reside under `public/`.
