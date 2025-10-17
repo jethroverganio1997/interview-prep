@@ -1,10 +1,20 @@
 import { cn } from "@/lib/utils";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { CalendarDays, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 
-import { formatPostedAt, formatSalary, getInitials } from "@/app/dashboard/_lib/helpers";
+import {
+  formatPostedAt,
+  formatSalary,
+  getInitials,
+} from "@/app/dashboard/_lib/helpers";
 
 export interface JobCardProps {
   id: string;
@@ -45,7 +55,6 @@ export function JobCard({
   skills,
   description,
   listingUrl,
-  applyUrl,
   applicantCount,
   isEasyApply,
   isPromoted,
@@ -61,7 +70,9 @@ export function JobCard({
         {
           key: `${id}-location`,
           label: location,
-          icon: <MapPin className="h-3 w-3 text-muted-foreground" aria-hidden />,
+          icon: (
+            <MapPin className="h-3 w-3 text-muted-foreground" aria-hidden />
+          ),
         },
       ]
     : [];
@@ -100,30 +111,43 @@ export function JobCard({
                   {companyName}
                 </Link>
               ) : (
-                <span className="font-medium text-foreground">{companyName}</span>
+                <span className="font-medium text-foreground">
+                  {companyName}
+                </span>
               )}
-              {navigationSubtitle ? (
-                <span >{navigationSubtitle}</span>
+              {navigationSubtitle ? <span>{navigationSubtitle}</span> : null}
+              {!navigationSubtitle && workType ? (
+                <span>&bull; {workType}</span>
               ) : null}
-              {!navigationSubtitle && workType ? <span>&bull; {workType}</span> : null}
             </div>
           </div>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
           {applicantCount ? (
             <span className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-              <span className="font-medium text-foreground">{applicantCount}</span>
+              <Users
+                className="h-3.5 w-3.5 text-muted-foreground"
+                aria-hidden
+              />
+              <span className="font-medium text-foreground">
+                {applicantCount}
+              </span>
             </span>
           ) : null}
           {formattedPostedAt ? (
             <span className="flex items-center gap-1">
-              <CalendarDays className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
+              <CalendarDays
+                className="h-3.5 w-3.5 text-muted-foreground"
+                aria-hidden
+              />
               <span>{formattedPostedAt}</span>
             </span>
           ) : null}
           {isVerified ? (
-            <Badge variant="secondary" className="bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600">
+            <Badge
+              variant="secondary"
+              className="bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600"
+            >
               Verified
             </Badge>
           ) : null}
@@ -219,12 +243,12 @@ export function JobCard({
         </div>
         <div>
           <Link
-            href={applyUrl ?? listingUrl}
+            href={listingUrl}
             target="_blank"
             rel="noreferrer noopener"
             className="text-[12px] font-semibold text-primary transition hover:text-primary/80"
           >
-            {applyUrl ? "Apply now →" : "View listing →"}
+            {"View listing →"}
           </Link>
         </div>
       </CardFooter>
