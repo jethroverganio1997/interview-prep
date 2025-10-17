@@ -57,13 +57,8 @@ export default async function ProtectedPage() {
           userId={userId}
           initialError={initialErrorMessage}
         />
-
-        <footer className="flex items-center justify-center">
-          <span className="text-sm text-muted-foreground">
-            Data syncs automatically when new listings land in Supabase.
-          </span>
-        </footer>
       </div>
     </div>
   );
 }
+

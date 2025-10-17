@@ -8,6 +8,7 @@
 ### SOP (Standard Operating Procedures)
 - [adding-routes](sop/adding-routes.md) — Workflow for introducing new Next.js routes.
 - [database-migration](sop/database-migration.md) — Steps for creating and applying Supabase migrations.
+- [design-search](sop/design-search.md) — Research checklist for selecting UI patterns before implementation.
 
 ### Tasks
 - [dashboard-job-listings](tasks/dashboard-job-listings.md) – Supabase-backed job cards powering the dashboard.

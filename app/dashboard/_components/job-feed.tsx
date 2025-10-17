@@ -1,13 +1,14 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Bookmark, FileSearch, Loader2 } from "lucide-react";
 
 import { createClient } from "@/lib/client";
 import { Input } from "@/components/ui/input";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { EmptyState } from "@/components/empty-state";
 
 import { JobCard } from "./job-card";
 import { mapRowToCard } from "../_lib/helpers";
@@ -258,11 +259,37 @@ export function JobFeed({
   const showEmptyState =
     !isLoading && cards.length === 0 && !fetchError;
 
-  const emptyStateLabel = savedOnly
-    ? "You have no saved jobs that match this search yet."
+  const emptyStateTitle = savedOnly
+    ? "No saved jobs yet"
     : debouncedSearch
-      ? "No job listings match your search just yet. Try adjusting your keywords."
-      : "No job listings available yet. Add records in Supabase to see them here.";
+      ? "No matches found"
+      : "No job listings available";
+
+  const emptyStateDescription = savedOnly
+    ? "Jobs you save will appear here. Use the bookmark button on a listing to keep track of roles you like."
+    : debouncedSearch
+      ? "Try a different keyword or clear your search to browse all opportunities."
+      : "Add records in Supabase or adjust your filters to see roles populate this view.";
+
+  const emptyStateActions = savedOnly
+    ? (
+        <Button type="button" onClick={() => setSavedOnly(false)}>
+          View all jobs
+        </Button>
+      )
+    : debouncedSearch
+      ? (
+          <Button type="button" onClick={() => setSearchInput("")}>
+            Clear search
+          </Button>
+        )
+      : undefined;
+
+  const emptyStateIcon = savedOnly ? (
+    <Bookmark className="size-5" aria-hidden />
+  ) : (
+    <FileSearch className="size-5" aria-hidden />
+  );
 
   return (
     <div className="flex flex-col gap-6">
@@ -311,9 +338,12 @@ export function JobFeed({
       </section>
 
       {showEmptyState ? (
-        <div className="rounded-2xl border border-border/60 bg-muted/20 px-6 py-10 text-center text-sm text-muted-foreground">
-          {emptyStateLabel}
-        </div>
+        <EmptyState
+          icon={emptyStateIcon}
+          title={emptyStateTitle}
+          description={emptyStateDescription}
+          actions={emptyStateActions}
+        />
       ) : null}
 
       {isLoading ? (

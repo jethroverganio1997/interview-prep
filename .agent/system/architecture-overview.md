@@ -33,6 +33,8 @@ lib/
 - `app/dashboard/page.tsx` gates access through Supabase auth, fetches the initial job batch + saved IDs on the server, and hydrates the client job feed.
 - `app/dashboard/_components/job-feed.tsx` is a client boundary that manages debounced search, saved-job toggles, infinite scrolling, and Supabase mutations while rendering `JobCard` entries.
 - `components/ui/` mirrors the shadcn/ui registry, offering low-level building blocks (`card`, `button`, `badge`, etc.).
+- `components/ui/empty.tsx` brings the shadcn `Empty` primitive variants into the project for consistent empty-state building blocks.
+- `components/empty-state.tsx` composes those primitives into an app-level empty state with optional icons, actions, and footer links for reuse across features.
 - `components/` houses higher-level widgets such as `header.tsx`, `footer.tsx`, which use in multiple route.
 - `lib/server.ts` and `lib/client.ts` (not all shown here) provide Supabase client factories for server and browser contexts, ensuring consistent session handling.
 
@@ -54,3 +56,4 @@ lib/
 - Feature-specific components belong in dedicated subfolders under `app/<route>/_components/` to avoid polluting the root components.
 - Keep supporting code for a route inside `app/<route>/_lib/`, grouping by responsibility (`types.ts`, `actions.ts`, `helpers.ts`, etc.) to make the contract between server logic and UI explicit.
 - Shared components across multiple route belong in dedicated subfolders under `components/` to avoid polluting the shadcn primitives.
+- Empty states should leverage `components/empty-state.tsx` so copy, iconography, and actions remain consistent across dashboard and future modules.
