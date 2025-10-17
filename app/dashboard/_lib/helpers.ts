@@ -3,57 +3,64 @@ import type { JobListingRow } from "./types";
 
 export function mapRowToCard(row: JobListingRow): JobCardProps {
   return {
-    id: row.id,
-    title: row.title,
-    companyName: row.company_name,
-    companyLinkedinUrl: row.company_linkedin_url ?? undefined,
-    companyLogo: row.company_logo ?? undefined,
+    id: row.job_id,
+    title: row.job_title,
+    companyName: row.company,
+    companyUrl: row.company_url ?? undefined,
     location: row.location ?? undefined,
-    employmentType: row.employment_type ?? undefined,
-    seniorityLevel: row.seniority_level ?? undefined,
-    salaryInfo: row.salary_info ?? [],
+    workType: row.work_type ?? undefined,
+    salary: row.salary ?? undefined,
     postedAt: row.posted_at ?? undefined,
+    postedAtEpoch: row.posted_at_epoch ?? undefined,
     benefits: row.benefits ?? [],
-    description: summariseDescription(row),
-    listingUrl: row.link ?? undefined,
+    jobInsights: row.job_insights ?? [],
+    skills: row.skills ?? [],
+    description: summariseDescription(row.description),
+    listingUrl: row.job_url,
     applyUrl: row.apply_url ?? undefined,
-    applicantsCount: row.applicants_count ?? undefined,
-    jobPosterName: row.job_poster_name ?? undefined,
-    jobPosterTitle: row.job_poster_title ?? undefined,
-    jobPosterPhoto: row.job_poster_photo ?? undefined,
+    applicantCount: row.applicant_count ?? undefined,
+    isEasyApply: row.is_easy_apply ?? false,
+    isPromoted: row.is_promoted ?? false,
+    isVerified: row.is_verified ?? false,
+    navigationSubtitle: row.navigation_subtitle ?? undefined,
   };
 }
 
-export function formatSalary(values: string[]) {
-  if (!values.length) {
-    return null;
-  }
-
-  if (values.length === 1) {
-    return values[0];
-  }
-
-  const [lower, ...rest] = values;
-  const upper = rest[rest.length - 1];
-  return `${lower} - ${upper}`;
+export function formatSalary(value?: string) {
+  return value ? value.trim() : null;
 }
 
-export function formatPostedAt(value?: string) {
-  if (!value) {
+export function formatPostedAt(value?: string, epoch?: number | null): string | null {
+  const date = value ? new Date(value) : epoch ? new Date(epoch) : null;
+  if (!date || Number.isNaN(date.getTime())) {
     return null;
   }
 
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) {
-    return null;
-  }
+  const now = new Date();
+  const diffMs = now.getTime() - date.getTime();
+  const diffSeconds = Math.floor(diffMs / 1000);
+  const diffMinutes = Math.floor(diffSeconds / 60);
+  const diffHours = Math.floor(diffMinutes / 60);
+  const diffDays = Math.floor(diffHours / 24);
 
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+  if (diffSeconds < 60) {
+    return "Just now";
+  } else if (diffMinutes < 60) {
+    return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+  } else if (diffHours < 24) {
+    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+  } else if (diffDays < 7) {
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+  } else {
+    // fallback to readable date
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }
 }
+
 
 export function getInitials(value?: string) {
   if (!value) {
@@ -72,11 +79,8 @@ export function getInitials(value?: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function summariseDescription(row: JobListingRow) {
-  const source =
-    row.description_text ??
-    (row.description_html ? stripHtml(row.description_html) : "");
-  const text = source.replace(/\s+/g, " ").trim();
+function summariseDescription(value?: string | null) {
+  const text = (value ?? "").replace(/\s+/g, " ").trim();
 
   if (!text) {
     return "No description provided.";
@@ -88,8 +92,3 @@ function summariseDescription(row: JobListingRow) {
 
   return `${text.slice(0, 217)}...`;
 }
-
-function stripHtml(value: string) {
-  return value.replace(/<[^>]+>/g, " ");
-}
-

@@ -9,20 +9,23 @@ Supabase provisions the following core tables automatically:
 
 ## Application Data
 ### `public.job_listings`
-- **Purpose:** Stores external job postings that are rendered on the dashboard cards.
+- **Purpose:** Stores LinkedIn-style job postings that hydrate the dashboard cards.
 - **Key columns:**
-  - `id text primary key` – Stable identifier from the upstream feed (LinkedIn ID).
-  - `title text` – Job title shown on the card.
-  - `company_name text`, `company_linkedin_url text`, `company_logo text` – Company level metadata for the card header.
-  - `location text`, `employment_type text`, `seniority_level text` – Display badges.
-  - `salary_info text[]`, `benefits text[]` – Arrays for compensation ranges and benefit badges.
-  - `posted_at date`, `applicants_count integer` – Used for the footer stats.
-  - `description_text text`, `description_html text` – Plain copy (preferred by the UI) and the original HTML payload for parity.
-  - `job_poster_*` fields – Name, title, photo, and profile url for the recruiter badge.
-  - `apply_url text`, `link text` – Destination URLs for the apply/view actions.
-  - `company_description text`, `company_website text`, `company_employees_count integer` – Extended company profile data for future surfaces.
-- **Access:** Row Level Security enabled with policy `Allow authenticated job list reads` permitting `select` for authenticated users. Service-role operations continue to bypass RLS.
-- **Seed data:** The initial migration inserts the "English Data Labeling Analyst" posting used during dashboard development.
+  - `job_id text primary key` – Stable job identifier from LinkedIn.
+  - `job_title text`, `job_url text` – Display title and canonical listing URL.
+  - `company text`, `company_url text`, `company_urn text` – Company display string, public profile link, and LinkedIn URN.
+  - `location text`, `work_type text` – Geography and working arrangement (Remote, Hybrid, etc.).
+  - `salary text` – Raw salary string supplied by the feed.
+  - `posted_at timestamptz`, `posted_at_epoch bigint` – Publication timestamp in ISO and epoch milliseconds for flexibility.
+  - `skills text[]`, `benefits text[]`, `job_insights text[]` – Arrays surfaced as skill/benefit/insight badges.
+  - `is_easy_apply boolean`, `is_promoted boolean`, `is_verified boolean` – Flags that drive badge rendering.
+  - `applicant_count text` – Human readable applicant volume (e.g. “over 100 applicants”).
+  - `description text` – Full job summary used for truncation on the card.
+  - `navigation_subtitle text`, `geo_id text` – Supplemental metadata used for LinkedIn navigation cues.
+  - `created_at timestamptz`, `created_at_epoch bigint` – Ingestion timestamps.
+  - `apply_url text` – Direct apply link; falls back to `job_url` when absent.
+- **Access:** Row Level Security remains enabled with policy `Allow authenticated job list reads` allowing `select` for authenticated users.
+- **Seed data:** Migration `20251017120000_update_job_listings_schema.sql` inserts the “Senior Frontend Developer” posting from Socium as sample data.
 
 ## Creating New Schema
 1. Run `supabase migration new <name>` to scaffold a migration file.

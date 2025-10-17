@@ -7,5 +7,5 @@ export async function getJobListings(
   return client
     .from("job_listings")
     .select("*")
-    .order("posted_at", { ascending: false });
+    .order("posted_at", { ascending: false, nullsLast: true });
 }
