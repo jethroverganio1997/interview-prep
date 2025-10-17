@@ -70,7 +70,7 @@ export function JobCard({
         className
       )}
     >
-      <CardHeader className="flex flex-row items-start gap-3 px-4">
+      <CardHeader className="flex flex-row items-center gap-3 px-4">
         <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-muted/70 text-sm font-semibold uppercase text-foreground">
           {companyLogo ? (
             <span
@@ -82,7 +82,7 @@ export function JobCard({
             companyName.slice(0, 2)
           )}
         </div>
-        <div className="flex flex-1 flex-col gap-1">
+        <div className="flex flex-1 flex-col justify-center gap-1">
           <CardTitle className="text-[16px] font-semibold leading-tight text-foreground">
             {listingUrl ? (
               <Link
@@ -113,9 +113,31 @@ export function JobCard({
             {employmentType ? <span>&bull; {employmentType}</span> : null}
             {seniorityLevel ? <span>&bull; {seniorityLevel}</span> : null}
           </div>
+          <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
+            {typeof applicantsCount === "number" ? (
+              <span className="flex items-center gap-1">
+                <Users
+                  className="h-3.5 w-3.5 text-muted-foreground"
+                  aria-hidden
+                />
+                <span className="font-medium text-foreground">
+                  {Intl.NumberFormat("en-US").format(applicantsCount)}
+                </span>
+              </span>
+            ) : null}
+            {formattedPostedAt ? (
+              <span className="flex items-center gap-1">
+                <CalendarDays
+                  className="h-3.5 w-3.5 text-muted-foreground"
+                  aria-hidden
+                />
+                <span>{formattedPostedAt}</span>
+              </span>
+            ) : null}
+          </div>
         </div>
       </CardHeader>
-      <CardContent className="flex flex-1 flex-col gap-3 px-5 py-2">
+      <CardContent className="flex flex-1 flex-col gap-3 px-4 py-2">
         <p className="text-[13px] leading-relaxed text-muted-foreground [display:-webkit-box] [-webkit-line-clamp:3] [-webkit-box-orient:vertical] overflow-hidden text-ellipsis">
           {description}
         </p>
@@ -148,7 +170,7 @@ export function JobCard({
           ))}
         </div>
       </CardContent>
-      <CardFooter className="flex flex-row items-center justify-between px-5">
+      <CardFooter className="flex flex-row items-center justify-between px-4">
         <div className="flex items-center gap-3">
           {jobPosterName ? (
             <div className="flex items-center gap-2">
@@ -175,6 +197,8 @@ export function JobCard({
               </div>
             </div>
           ) : null}
+        </div>
+        <div>
           {applyUrl ? (
             <Link
               href={applyUrl}
@@ -192,27 +216,8 @@ export function JobCard({
               rel="noreferrer noopener"
               className="text-[12px] font-semibold text-primary transition hover:text-primary/80"
             >
-              View listing &rarr;
+              View listing
             </Link>
-          ) : null}
-        </div>
-        <div className="flex items-center gap-3 text-[12px] text-muted-foreground">
-          {typeof applicantsCount === "number" ? (
-            <span className="flex items-center gap-1">
-              <Users className="h-3.5 w-3.5 text-muted-foreground" aria-hidden />
-              <span className="font-medium text-foreground">
-                {Intl.NumberFormat("en-US").format(applicantsCount)}
-              </span>
-            </span>
-          ) : null}
-          {formattedPostedAt ? (
-            <span className="flex items-center gap-1">
-              <CalendarDays
-                className="h-3.5 w-3.5 text-muted-foreground"
-                aria-hidden
-              />
-              <span>{formattedPostedAt}</span>
-            </span>
           ) : null}
         </div>
       </CardFooter>
