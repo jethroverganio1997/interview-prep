@@ -7,7 +7,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { CalendarDays, MapPin, Users } from "lucide-react";
+import { Bookmark, BookmarkCheck, CalendarDays, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -38,6 +38,9 @@ export interface JobCardProps {
   isVerified: boolean;
   navigationSubtitle?: string;
   className?: string;
+  isSaved?: boolean;
+  onToggleSave?: () => void;
+  disableSave?: boolean;
 }
 
 export function JobCard({
@@ -61,6 +64,9 @@ export function JobCard({
   isVerified,
   navigationSubtitle,
   className,
+  isSaved = false,
+  onToggleSave,
+  disableSave = false,
 }: JobCardProps) {
   const salaryLabel = formatSalary(salary);
   const formattedPostedAt = formatPostedAt(postedAt, postedAtEpoch);
@@ -85,42 +91,66 @@ export function JobCard({
       )}
     >
       <CardHeader className="flex flex-col gap-4 px-4">
-        <div className="flex items-center gap-3">
-          <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-muted/70 text-sm font-semibold uppercase text-foreground">
-            {companyInitials}
-          </div>
-          <div className="flex flex-1 flex-col gap-1">
-            <CardTitle className="text-[16px] font-semibold leading-tight text-foreground">
-              <Link
-                href={listingUrl}
-                target="_blank"
-                rel="noreferrer noopener"
-                className="transition hover:text-primary"
-              >
-                {title}
-              </Link>
-            </CardTitle>
-            <div className="flex flex-wrap items-center text-[12px] text-muted-foreground">
-              {companyUrl ? (
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <div className="flex size-12 items-center justify-center rounded-xl border border-border/60 bg-muted/70 text-sm font-semibold uppercase text-foreground">
+              {companyInitials}
+            </div>
+            <div className="flex flex-1 flex-col gap-1">
+              <CardTitle className="text-[16px] font-semibold leading-tight text-foreground">
                 <Link
-                  href={companyUrl}
+                  href={listingUrl}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="font-medium transition hover:text-primary"
+                  className="transition hover:text-primary"
                 >
-                  {companyName}
+                  {title}
                 </Link>
-              ) : (
-                <span className="font-medium text-foreground">
-                  {companyName}
-                </span>
-              )}
-              {navigationSubtitle ? <span>{navigationSubtitle}</span> : null}
-              {!navigationSubtitle && workType ? (
-                <span>&bull; {workType}</span>
-              ) : null}
+              </CardTitle>
+              <div className="flex flex-wrap items-center text-[12px] text-muted-foreground">
+                {companyUrl ? (
+                  <Link
+                    href={companyUrl}
+                    target="_blank"
+                    rel="noreferrer noopener"
+                    className="font-medium transition hover:text-primary"
+                  >
+                    {companyName}
+                  </Link>
+                ) : (
+                  <span className="font-medium text-foreground">
+                    {companyName}
+                  </span>
+                )}
+                {navigationSubtitle ? <span>{navigationSubtitle}</span> : null}
+                {!navigationSubtitle && workType ? (
+                  <span>&bull; {workType}</span>
+                ) : null}
+              </div>
             </div>
           </div>
+          {onToggleSave ? (
+            <button
+              type="button"
+              onClick={onToggleSave}
+              disabled={disableSave}
+              aria-pressed={isSaved}
+              title={isSaved ? "Remove from saved jobs" : "Save this job"}
+              className={cn(
+                "rounded-full border border-transparent p-2 text-muted-foreground transition hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-60",
+                isSaved ? "text-primary" : "hover:border-primary/20"
+              )}
+            >
+              <span className="sr-only">
+                {isSaved ? "Remove from saved jobs" : "Save this job"}
+              </span>
+              {isSaved ? (
+                <BookmarkCheck className="h-4 w-4" aria-hidden />
+              ) : (
+                <Bookmark className="h-4 w-4" aria-hidden />
+              )}
+            </button>
+          ) : null}
         </div>
         <div className="flex flex-wrap items-center gap-3 text-[12px] text-muted-foreground">
           {applicantCount ? (

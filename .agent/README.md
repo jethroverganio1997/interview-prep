@@ -11,6 +11,7 @@
 
 ### Tasks
 - [dashboard-job-listings](tasks/dashboard-job-listings.md) – Supabase-backed job cards powering the dashboard.
+- [search-saved-infinite-scroll](tasks/search-saved-infinite-scroll.md) – Plan for dashboard search, saved jobs, and infinite scrolling.
 
 ## How to Use
 1. Start with **architecture-overview** for a project tour.

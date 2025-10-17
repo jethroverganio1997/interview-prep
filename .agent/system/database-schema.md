@@ -1,5 +1,5 @@
 ## Supabase Overview
-The project connects to a Supabase backend configured through `supabase/config.toml`. The configuration enables Supabase Auth for user management and now tracks SQL migrations under `supabase/migrations/` (e.g. `20251016153000_create_job_listings.sql`).
+The project connects to a Supabase backend configured through `supabase/config.toml`. The configuration enables Supabase Auth for user management and now tracks SQL migrations under `supabase/migrations/` (e.g. `20251016153000_create_job_listings.sql`, `20251101090000_add_search_vector_and_saved_jobs.sql`).
 
 ## Auth Tables
 Supabase provisions the following core tables automatically:
@@ -24,8 +24,18 @@ Supabase provisions the following core tables automatically:
   - `navigation_subtitle text`, `geo_id text` – Supplemental metadata used for LinkedIn navigation cues.
   - `created_at timestamptz`, `created_at_epoch bigint` – Ingestion timestamps.
   - `apply_url text` – Direct apply link; falls back to `job_url` when absent.
+  - `search_vector tsvector` – Generated column combining title, company, location, and description for prefix full-text search (GIN indexed).
 - **Access:** Row Level Security remains enabled with policy `Allow authenticated job list reads` allowing `select` for authenticated users.
 - **Seed data:** Migration `20251017120000_update_job_listings_schema.sql` inserts the “Senior Frontend Developer” posting from Socium as sample data.
+
+### `public.saved_jobs`
+- **Purpose:** Stores bookmarks that tie an authenticated user to job listings they want to revisit.
+- **Key columns:**
+  - `user_id uuid` – References `auth.users.id`; cascades on delete.
+  - `job_id text` – References `public.job_listings.job_id`; cascades on delete.
+  - `created_at timestamptz` – Timestamp when the bookmark was created, defaulting to `now()`.
+- **Indexes & Constraints:** Composite primary key on `(user_id, job_id)` plus supporting index `(user_id, created_at desc)` for efficient pagination.
+- **Access:** RLS policies allow owners to `select`, `insert`, and `delete` their own rows.
 
 ## Creating New Schema
 1. Run `supabase migration new <name>` to scaffold a migration file.

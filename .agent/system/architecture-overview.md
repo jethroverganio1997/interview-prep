@@ -30,7 +30,8 @@ lib/
 ## Core Modules
 - `app/<route/feature>/<_components>/` are components use by that specific route or feature that is not shared in diff route
 - `app/<route/feature>/<_lib>/` centralises non-component logic for that feature. Each `_lib/` is split further into focused modules (e.g. `types.ts` for DTOs, `actions.ts` for server/data calls, `helpers.ts` for formatting or mapping utilities) so that pages and components stay lean. Route-level `types.ts` files should re-export aliases from the generated Supabase schema (see `types/database.types.ts`) instead of defining shapes manually.
-- `app/dashboard/page.tsx` gates access through Supabase auth, then renders data-driven UI sections built from local components within the dashboard segment.
+- `app/dashboard/page.tsx` gates access through Supabase auth, fetches the initial job batch + saved IDs on the server, and hydrates the client job feed.
+- `app/dashboard/_components/job-feed.tsx` is a client boundary that manages debounced search, saved-job toggles, infinite scrolling, and Supabase mutations while rendering `JobCard` entries.
 - `components/ui/` mirrors the shadcn/ui registry, offering low-level building blocks (`card`, `button`, `badge`, etc.).
 - `components/` houses higher-level widgets such as `header.tsx`, `footer.tsx`, which use in multiple route.
 - `lib/server.ts` and `lib/client.ts` (not all shown here) provide Supabase client factories for server and browser contexts, ensuring consistent session handling.
@@ -38,7 +39,7 @@ lib/
 ## Data Flow
 1. A request hits an `app/` route. Server components fetch session metadata using `createClient` from `@/lib/server`.
 2. If the user is authenticated, the page returns structured JSX. Otherwise, it redirects to `/auth/login`.
-3. Client-side actions (e.g., `LogoutButton`) call `createClient` from `@/lib/client`, operate against Supabase auth, and update routing through Next navigation.
+3. Client-side boundaries (e.g., `JobFeed`) call `createClient` from `@/lib/client` to run Supabase queries for search, pagination, and saved job mutations without leaving the dashboard view.
 
 ## State Management
 - Server state is derived on-demand in async server components.

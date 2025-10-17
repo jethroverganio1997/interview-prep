@@ -1,7 +1,10 @@
 import type { JobCardProps } from "../_components/job-card";
 import type { JobListingRow } from "./types";
 
-export function mapRowToCard(row: JobListingRow): JobCardProps {
+export function mapRowToCard(
+  row: JobListingRow,
+  isSaved = false
+): JobCardProps {
   return {
     id: row.job_id,
     title: row.job_title,
@@ -23,6 +26,7 @@ export function mapRowToCard(row: JobListingRow): JobCardProps {
     isPromoted: row.is_promoted ?? false,
     isVerified: row.is_verified ?? false,
     navigationSubtitle: row.navigation_subtitle ?? undefined,
+    isSaved,
   };
 }
 
@@ -79,6 +83,14 @@ export function getInitials(value?: string) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
+export function mapRowsToCards(
+  rows: JobListingRow[],
+  savedJobIds: Iterable<string>
+) {
+  const savedSet = new Set(savedJobIds);
+  return rows.map((row) => mapRowToCard(row, savedSet.has(row.job_id)));
+}
+
 function summariseDescription(value?: string | null) {
   const text = (value ?? "").replace(/\s+/g, " ").trim();
 
@@ -91,4 +103,22 @@ function summariseDescription(value?: string | null) {
   }
 
   return `${text.slice(0, 217)}...`;
+}
+
+export function buildSearchQuery(term?: string | null) {
+  if (!term) {
+    return null;
+  }
+
+  const tokens = term
+    .trim()
+    .split(/\s+/)
+    .map((piece) => piece.replace(/['&|!*?:\\]/g, ""))
+    .filter(Boolean);
+
+  if (!tokens.length) {
+    return null;
+  }
+
+  return tokens.map((piece) => `${piece}:*`).join(" & ");
 }

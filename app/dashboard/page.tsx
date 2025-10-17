@@ -1,28 +1,38 @@
 import { redirect } from "next/navigation";
 
 import { LogoutButton } from "@/app/auth/_components/logout-button";
-import { JobCard } from "@/app/dashboard/_components/job-card";
-import { getJobListings } from "@/app/dashboard/_lib/actions";
-import { mapRowToCard } from "@/app/dashboard/_lib/helpers";
+import { JobFeed } from "@/app/dashboard/_components/job-feed";
+import { getJobListings, getSavedJobIds } from "@/app/dashboard/_lib/actions";
 import { createClient } from "@/lib/server";
 
 export default async function ProtectedPage() {
   const supabase = await createClient();
 
-  const { data, error } = await supabase.auth.getClaims();
-  if (error || !data?.claims) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error || !data.user) {
     redirect("/auth/login");
   }
 
-  const email = data.claims.email ?? "";
+  const user = data.user;
+  const email = user.email ?? "";
   const greetingName = email.split("@")[0] || "there";
+  const userId = user.id ?? null;
 
-  const {
-    data: jobListingsData,
-    error: jobListingsError,
-  } = await getJobListings(supabase);
+  const jobListingsResult = await getJobListings(supabase, {
+    limit: 9,
+    userId,
+  });
 
-  const jobCards = (jobListingsData ?? []).map(mapRowToCard);
+  const savedJobsResponse = userId
+    ? await getSavedJobIds(supabase, userId)
+    : { data: [], error: null };
+
+  const initialSavedJobIds =
+    savedJobsResponse.data?.map((row) => row.job_id) ?? [];
+  const initialErrorMessage =
+    jobListingsResult.error?.message ??
+    savedJobsResponse.error?.message ??
+    null;
 
   return (
     <div className="w-full bg-muted/10">
@@ -40,22 +50,13 @@ export default async function ProtectedPage() {
           <LogoutButton />
         </header>
 
-        {jobListingsError ? (
-          <div className="rounded-xl border border-destructive/30 bg-destructive/5 px-4 py-3 text-sm text-destructive">
-            Unable to load job listings right now. Please try again later.
-          </div>
-        ) : null}
-
-        <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-          {jobCards.length > 0 ? (
-            jobCards.map((card) => <JobCard key={card.id} {...card} />)
-          ) : (
-            <div className="col-span-full rounded-2xl border border-border/60 bg-muted/20 px-6 py-10 text-center text-sm text-muted-foreground">
-              No job listings available yet. Add records in Supabase to see them
-              here.
-            </div>
-          )}
-        </section>
+        <JobFeed
+          initialRows={jobListingsResult.data}
+          initialSavedJobIds={initialSavedJobIds}
+          initialHasMore={jobListingsResult.hasMore}
+          userId={userId}
+          initialError={initialErrorMessage}
+        />
 
         <footer className="flex items-center justify-center">
           <span className="text-sm text-muted-foreground">
