@@ -21,6 +21,7 @@ Supabase provisions the following core tables automatically:
   - `is_easy_apply boolean`, `is_promoted boolean`, `is_verified boolean` – Flags that drive badge rendering.
   - `applicant_count text` – Human readable applicant volume (e.g. “over 100 applicants”).
   - `description text` – Full job summary used for truncation on the card.
+  - `description_md text` – Full job summary in markdown format used to display job description in job page.
   - `navigation_subtitle text`, `geo_id text` – Supplemental metadata used for LinkedIn navigation cues.
   - `created_at timestamptz`, `created_at_epoch bigint` – Ingestion timestamps.
   - `apply_url text` – Direct apply link; falls back to `job_url` when absent.

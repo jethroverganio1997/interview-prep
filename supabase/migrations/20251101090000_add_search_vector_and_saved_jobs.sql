@@ -1,18 +1,3 @@
--- Add full-text search vector to job_listings
-alter table public.job_listings
-  add column search_vector tsvector
-  generated always as (
-    setweight(to_tsvector('english', coalesce(job_title, '')), 'A') ||
-    setweight(to_tsvector('english', coalesce(company, '')), 'B') ||
-    setweight(to_tsvector('english', coalesce(location, '')), 'C') ||
-    setweight(to_tsvector('english', coalesce(description, '')), 'D')
-  ) stored;
-
-create index job_listings_search_vector_idx
-  on public.job_listings
-  using gin (search_vector);
-
-comment on column public.job_listings.search_vector is 'Generated tsvector for keyword search across title, company, location, and description.';
 
 -- Saved jobs table
 create table public.saved_jobs (
