@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { ArrowUpRight, BookmarkCheck, CalendarDays, ExternalLink, MapPin, Users } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -15,6 +15,7 @@ import {
   getInitials,
 } from "@/app/dashboard/_lib/helpers";
 import type { JobListingRow } from "@/app/dashboard/_lib/types";
+import { Markdown } from "@/app/dashboard/_components/markdown";
 
 interface JobDetailProps {
   job: JobListingRow;
@@ -31,7 +32,13 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
   const benefits = job.benefits ?? [];
   const jobInsights = job.job_insights ?? [];
   const skills = job.skills ?? [];
-  const description = job.description ?? "No description provided.";
+  const descriptionMarkdown = job.description_md?.trim();
+  const descriptionPlain = job.description?.trim();
+  const descriptionContent = descriptionMarkdown?.length
+    ? descriptionMarkdown
+    : descriptionPlain?.length
+      ? descriptionPlain
+      : "No description provided.";
   const applyHref = job.apply_url ?? job.job_url;
 
   return (
@@ -124,9 +131,7 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
             <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
               Role overview
             </h2>
-            <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">
-              {description}
-            </p>
+            <Markdown content={descriptionContent} className="text-sm leading-relaxed text-muted-foreground" />
           </section>
 
           {jobInsights.length ? (
