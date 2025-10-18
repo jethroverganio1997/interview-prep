@@ -7,6 +7,7 @@ import type { Database } from "@/types/database.types";
 import { buildSearchQuery } from "./helpers";
 import type {
   JobListFilters,
+  JobListingDetailResult,
   JobListingRow,
   JobListingsResult,
 } from "./types";
@@ -50,6 +51,56 @@ export async function getJobListings(
     rangeEnd,
     limit: effectiveLimit,
   });
+}
+
+export async function getJobListingById(
+  client: SupabaseClient<Database>,
+  jobId: string,
+  userId: string | null
+): Promise<JobListingDetailResult> {
+  const response = await client
+    .from("job_listings")
+    .select("*")
+    .eq("job_id", jobId)
+    .maybeSingle();
+
+  if (response.error) {
+    return {
+      data: null,
+      error: response.error,
+      isSaved: false,
+    };
+  }
+
+  const job = response.data ?? null;
+  if (!job) {
+    return {
+      data: null,
+      error: null,
+      isSaved: false,
+    };
+  }
+
+  if (!userId) {
+    return {
+      data: job,
+      error: null,
+      isSaved: false,
+    };
+  }
+
+  const savedLookup = await client
+    .from("saved_jobs")
+    .select("job_id")
+    .eq("user_id", userId)
+    .eq("job_id", jobId)
+    .maybeSingle();
+
+  return {
+    data: job,
+    error: savedLookup.error ?? null,
+    isSaved: Boolean(savedLookup.data),
+  };
 }
 
 export async function getSavedJobIds(

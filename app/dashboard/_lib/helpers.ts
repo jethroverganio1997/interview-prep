@@ -27,6 +27,7 @@ export function mapRowToCard(
     isVerified: row.is_verified ?? false,
     navigationSubtitle: row.navigation_subtitle ?? undefined,
     isSaved,
+    detailHref: `/dashboard/jobs/${row.job_id}`,
   };
 }
 

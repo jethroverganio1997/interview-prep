@@ -1,4 +1,11 @@
-import { cn } from "@/lib/utils";
+'use client';
+
+import { type KeyboardEvent as ReactKeyboardEvent } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Bookmark, BookmarkCheck, CalendarDays, MapPin, Users } from "lucide-react";
+
+import { Badge } from "@/components/ui/badge";
 import {
   Card,
   CardContent,
@@ -6,10 +13,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Bookmark, BookmarkCheck, CalendarDays, MapPin, Users } from "lucide-react";
-import Link from "next/link";
-
+import { cn } from "@/lib/utils";
 import {
   formatPostedAt,
   formatSalary,
@@ -41,6 +45,7 @@ export interface JobCardProps {
   isSaved?: boolean;
   onToggleSave?: () => void;
   disableSave?: boolean;
+  detailHref: string;
 }
 
 export function JobCard({
@@ -67,7 +72,9 @@ export function JobCard({
   isSaved = false,
   onToggleSave,
   disableSave = false,
+  detailHref,
 }: JobCardProps) {
+  const router = useRouter();
   const salaryLabel = formatSalary(salary);
   const formattedPostedAt = formatPostedAt(postedAt, postedAtEpoch);
   const companyInitials = getInitials(companyName);
@@ -83,12 +90,31 @@ export function JobCard({
       ]
     : [];
 
+  const handleNavigate = () => {
+    router.push(detailHref);
+  };
+
+  const handleKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) {
+      return;
+    }
+
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleNavigate();
+    }
+  };
+
   return (
     <Card
       className={cn(
-        "group relative flex h-full flex-col gap-2 overflow-hidden rounded-2xl border border-border/70 bg-card/95 py-5 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:border-primary/40",
+        "group relative flex h-full cursor-pointer flex-col gap-2 overflow-hidden rounded-2xl border border-border/70 bg-card/95 py-5 shadow-sm transition-transform duration-200 hover:-translate-y-0.5 hover:border-primary/40",
         className
       )}
+      role="link"
+      tabIndex={0}
+      onClick={handleNavigate}
+      onKeyDown={handleKeyDown}
     >
       <CardHeader className="flex flex-col gap-4 px-4">
         <div className="flex items-start justify-between gap-3">
@@ -99,10 +125,9 @@ export function JobCard({
             <div className="flex flex-1 flex-col gap-1">
               <CardTitle className="text-[16px] font-semibold leading-tight text-foreground">
                 <Link
-                  href={listingUrl}
-                  target="_blank"
-                  rel="noreferrer noopener"
+                  href={detailHref}
                   className="transition hover:text-primary"
+                  onClick={(event) => event.stopPropagation()}
                 >
                   {title}
                 </Link>
@@ -114,6 +139,7 @@ export function JobCard({
                     target="_blank"
                     rel="noreferrer noopener"
                     className="font-medium transition hover:text-primary"
+                    onClick={(event) => event.stopPropagation()}
                   >
                     {companyName}
                   </Link>
@@ -132,7 +158,10 @@ export function JobCard({
           {onToggleSave ? (
             <button
               type="button"
-              onClick={onToggleSave}
+              onClick={(event) => {
+                event.stopPropagation();
+                onToggleSave();
+              }}
               disabled={disableSave}
               aria-pressed={isSaved}
               title={isSaved ? "Remove from saved jobs" : "Save this job"}
@@ -277,6 +306,7 @@ export function JobCard({
             target="_blank"
             rel="noreferrer noopener"
             className="text-[12px] font-semibold text-primary transition hover:text-primary/80"
+            onClick={(event) => event.stopPropagation()}
           >
             {"View listing →"}
           </Link>

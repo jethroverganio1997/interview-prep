@@ -21,3 +21,9 @@ export interface JobListingsResult {
   savedJobIds: string[];
   hasMore: boolean;
 }
+
+export interface JobListingDetailResult {
+  data: JobListingRow | null;
+  error: PostgrestError | null;
+  isSaved: boolean;
+}
