@@ -123,3 +123,63 @@ export function buildSearchQuery(term?: string | null) {
 
   return tokens.map((piece) => `${piece}:*`).join(" & ");
 }
+
+const COMMON_SECOND_LEVEL_DOMAINS = new Set([
+  "co",
+  "com",
+  "gov",
+  "ac",
+  "edu",
+  "org",
+  "net",
+]);
+
+export function getDomainFromUrl(value?: string | null): string | null {
+  if (!value) {
+    return null;
+  }
+
+  const trimmed = value.trim();
+  if (!trimmed) {
+    return null;
+  }
+
+  let url: URL;
+  try {
+    url = new URL(trimmed);
+  } catch {
+    try {
+      url = new URL(`https://${trimmed}`);
+    } catch {
+      return null;
+    }
+  }
+
+  const hostname = url.hostname.toLowerCase();
+  if (!hostname) {
+    return null;
+  }
+
+  const host = hostname.startsWith("www.") ? hostname.slice(4) : hostname;
+  const parts = host.split(".").filter(Boolean);
+
+  if (parts.length <= 1) {
+    return host;
+  }
+
+  if (parts.length === 2) {
+    return host;
+  }
+
+  const last = parts[parts.length - 1];
+  const second = parts[parts.length - 2];
+
+  if (last.length === 2) {
+    const third = parts[parts.length - 3];
+    if (COMMON_SECOND_LEVEL_DOMAINS.has(second) || second.length <= 3) {
+      return third ? `${third}.${second}.${last}` : `${second}.${last}`;
+    }
+  }
+
+  return `${second}.${last}`;
+}

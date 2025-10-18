@@ -1,9 +1,15 @@
-'use client';
+"use client";
 
 import { type KeyboardEvent as ReactKeyboardEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Bookmark, BookmarkCheck, CalendarDays, MapPin, Users } from "lucide-react";
+import {
+  Bookmark,
+  BookmarkCheck,
+  CalendarDays,
+  MapPin,
+  Users,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -17,6 +23,7 @@ import { cn } from "@/lib/utils";
 import {
   formatPostedAt,
   formatSalary,
+  getDomainFromUrl,
   getInitials,
 } from "@/app/dashboard/_lib/helpers";
 
@@ -64,8 +71,6 @@ export function JobCard({
   description,
   listingUrl,
   applicantCount,
-  isEasyApply,
-  isPromoted,
   isVerified,
   navigationSubtitle,
   className,
@@ -78,6 +83,7 @@ export function JobCard({
   const salaryLabel = formatSalary(salary);
   const formattedPostedAt = formatPostedAt(postedAt, postedAtEpoch);
   const companyInitials = getInitials(companyName);
+  const sourceDomain = getDomainFromUrl(listingUrl) ?? "Source unknown";
   const topBadges = location
     ? [
         {
@@ -283,22 +289,12 @@ export function JobCard({
       </CardContent>
       <CardFooter className="flex flex-row items-center justify-between px-4">
         <div className="flex flex-wrap gap-2">
-          {isEasyApply ? (
-            <Badge
-              variant="secondary"
-              className="bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600"
-            >
-              Easy Apply
-            </Badge>
-          ) : null}
-          {isPromoted ? (
-            <Badge
-              variant="secondary"
-              className="bg-amber-500/10 px-2 py-1 text-[11px] font-medium text-amber-600"
-            >
-              Promoted
-            </Badge>
-          ) : null}
+          <Badge
+            variant="secondary"
+            className="bg-emerald-500/10 px-2 py-1 text-[11px] font-medium text-emerald-600"
+          >
+            {sourceDomain}
+          </Badge>
         </div>
         <div>
           <Link

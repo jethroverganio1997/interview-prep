@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookmarkCheck, CalendarDays, ExternalLink, MapPin, Users } from "lucide-react";
+import { ArrowUpRight, BookmarkCheck, CalendarDays, ExternalLink, Globe, MapPin, Users } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -12,6 +12,7 @@ import {
 import {
   formatPostedAt,
   formatSalary,
+  getDomainFromUrl,
   getInitials,
 } from "@/app/dashboard/_lib/helpers";
 import type { JobListingRow } from "@/app/dashboard/_lib/types";
@@ -39,6 +40,7 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
     : descriptionPlain?.length
       ? descriptionPlain
       : "No description provided.";
+  const sourceDomain = getDomainFromUrl(job.job_url) ?? "Source unknown";
   const applyHref = job.apply_url ?? job.job_url;
 
   return (
@@ -78,6 +80,13 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
                     <span>{workType}</span>
                   </>
                 ) : null}
+                <>
+                  <span aria-hidden>•</span>
+                  <span className="flex items-center gap-1">
+                    <Globe className="h-4 w-4 text-muted-foreground" aria-hidden />
+                    <span className="font-medium text-foreground">{sourceDomain}</span>
+                  </span>
+                </>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
                 {applicantCount ? (

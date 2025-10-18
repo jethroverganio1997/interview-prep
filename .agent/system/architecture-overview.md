@@ -33,7 +33,7 @@ lib/
 - `app/dashboard/page.tsx` gates access through Supabase auth, fetches the initial job batch + saved IDs on the server, and hydrates the client job feed.
 - `app/dashboard/jobs/[jobId]/page.tsx` renders a secure job detail view, loading the full record server-side and surfacing a not-found state when the listing is missing.
 - `app/dashboard/_components/job-feed.tsx` is now a thin client boundary that renders controls and cards while delegating all data operations to the colocated hook.
-- `app/dashboard/_components/job-detail.tsx` formats the complete job payload (description, badges, external links) for the detail page, rendering markdown descriptions when available, and surfaces saved status hints.
+- `app/dashboard/_components/job-detail.tsx` formats the complete job payload (description, badges, external links) for the detail page, rendering markdown descriptions when available, showing the source domain, and surfacing saved status hints.
 - `app/dashboard/_components/markdown.tsx` wraps `react-markdown` with Tailwind-aware typography so feature modules can safely render GitHub-flavoured markdown.
 - `app/dashboard/_lib/use-job-feed.ts` centralises the job feed client state, Supabase pagination/search, and optimistic saved-job handling so other dashboard widgets can reuse the same contract.
 - `components/ui/` mirrors the shadcn/ui registry, offering low-level building blocks (`card`, `button`, `badge`, etc.).
