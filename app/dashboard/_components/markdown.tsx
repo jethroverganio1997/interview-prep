@@ -1,4 +1,5 @@
 import type { Components } from "react-markdown";
+import type { HTMLAttributes, ReactNode } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
@@ -8,6 +9,11 @@ interface MarkdownProps {
   content: string;
   className?: string;
 }
+
+type CodeBlockProps = HTMLAttributes<HTMLElement> & {
+  inline?: boolean;
+  children?: ReactNode;
+};
 
 const markdownComponents: Components = {
   p: ({ className, children, ...props }) => (
@@ -113,7 +119,7 @@ const markdownComponents: Components = {
       {children}
     </blockquote>
   ),
-  code: ({ inline, className, children, ...props }) => {
+  code: ({ inline, className, children, ...props }: CodeBlockProps) => {
     if (inline) {
       return (
         <code

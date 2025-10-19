@@ -17,58 +17,117 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { BaseEditorKit } from '@/components/editor/editor-base-kit';
 import { EditorStatic } from '@/components/editor/ui/editor-static';
 import { ToolbarButton } from '@/components/editor/ui/toolbar';
-import { BaseBasicBlocksKit } from '@/components/editor/plugins/basic-blocks-base-kit';
-import { BaseBasicMarksKit } from '@/components/editor/plugins/basic-marks-base-kit';
 
-const BaseEditorKit = [...BaseBasicBlocksKit, ...BaseBasicMarksKit];
 const SITE_URL = 'https://platejs.org';
 
-async function downloadBlobUrl(url: string, filename: string) {
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-}
+async function downloadFile(url: string, filename: string) {
+  const response = await fetch(url);
+  const blob = await response.blob();
+  const blobUrl = window.URL.createObjectURL(blob);
 
-async function downloadDataUrl(dataUrl: string, filename: string) {
-  await downloadBlobUrl(dataUrl, filename);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+
+  window.URL.revokeObjectURL(blobUrl);
 }
 
 export function ExportToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
 
-  const disabled = !editor;
-
   const getCanvas = React.useCallback(async () => {
     if (!editor) return null;
 
     const { default: html2canvas } = await import('html2canvas-pro');
 
-    const canvas = await html2canvas(editor.api.toDOMNode(editor)!, {
-      backgroundColor: '#ffffff',
-      onclone: (documentClone: Document) => {
-        documentClone.documentElement.classList.remove('dark');
-        documentClone.body.classList.remove('dark');
-        documentClone.documentElement.style.setProperty('color-scheme', 'light');
-        documentClone.body.style.backgroundColor = '#ffffff';
-        documentClone.body.style.color = '#111111';
+    const style = document.createElement('style');
+    style.textContent = `
+      :root { color-scheme: light; }
+      body { background: #ffffff; color: #111111; }
+    `;
+    document.head.append(style);
 
+    const editableNode = editor.api.toDOMNode(editor)!;
+    const containerNode = editableNode.parentElement as HTMLElement | null;
+    const toolbarNodes = Array.from(
+      (containerNode ?? editableNode).querySelectorAll<HTMLElement>(
+        '.plate-toolbar'
+      )
+    );
+
+    const previousContainerStyle = containerNode
+      ? {
+          height: containerNode.style.height,
+          maxHeight: containerNode.style.maxHeight,
+          overflow: containerNode.style.overflow,
+        }
+      : null;
+    const previousEditableStyle = {
+      height: editableNode.style.height,
+      maxHeight: editableNode.style.maxHeight,
+      overflow: editableNode.style.overflow,
+    };
+
+    const previousToolbarDisplays = new Map<HTMLElement, string>();
+    toolbarNodes.forEach((node) => {
+      previousToolbarDisplays.set(node, node.style.display);
+      node.style.display = 'none';
+    });
+
+    if (containerNode) {
+      containerNode.style.height = 'auto';
+      containerNode.style.maxHeight = 'none';
+      containerNode.style.overflow = 'visible';
+    }
+
+    editableNode.style.height = 'auto';
+    editableNode.style.maxHeight = 'none';
+    editableNode.style.overflow = 'visible';
+
+    const canvas = await html2canvas(containerNode ?? editableNode, {
+      onclone: (documentClone: Document) => {
         const editable = documentClone.querySelector('[contenteditable="true"]');
         if (!editable) return;
 
         editable
           .querySelectorAll<HTMLElement>('*')
           .forEach((element) => {
-            element.style.fontFamily =
-              "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif";
+            const existingStyle = element.getAttribute('style') || '';
+            element.setAttribute(
+              'style',
+              `${existingStyle}; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif !important`
+            );
           });
       },
     });
+
+    style.remove();
+
+    toolbarNodes.forEach((node) => {
+      const previous = previousToolbarDisplays.get(node);
+      if (previous !== undefined) {
+        node.style.display = previous;
+      } else {
+        node.style.display = '';
+      }
+    });
+
+    if (containerNode && previousContainerStyle) {
+      containerNode.style.height = previousContainerStyle.height;
+      containerNode.style.maxHeight = previousContainerStyle.maxHeight;
+      containerNode.style.overflow = previousContainerStyle.overflow;
+    }
+
+    editableNode.style.height = previousEditableStyle.height;
+    editableNode.style.maxHeight = previousEditableStyle.maxHeight;
+    editableNode.style.overflow = previousEditableStyle.overflow;
 
     return canvas;
   }, [editor]);
@@ -80,7 +139,7 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
     const { PDFDocument } = await import('pdf-lib');
     const pdfDoc = await PDFDocument.create();
     const page = pdfDoc.addPage([canvas.width, canvas.height]);
-    const image = await pdfDoc.embedPng(canvas.toDataURL('image/png'));
+    const image = await pdfDoc.embedPng(canvas.toDataURL('PNG'));
     page.drawImage(image, {
       height: canvas.height,
       width: canvas.width,
@@ -88,14 +147,15 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       y: 0,
     });
     const pdfBase64 = await pdfDoc.saveAsBase64({ dataUri: true });
-    await downloadDataUrl(pdfBase64, 'editor.pdf');
+
+    await downloadFile(pdfBase64, 'editor.pdf');
   }, [getCanvas]);
 
   const exportToImage = React.useCallback(async () => {
     const canvas = await getCanvas();
     if (!canvas) return;
 
-    await downloadDataUrl(canvas.toDataURL('image/png'), 'editor.png');
+    await downloadFile(canvas.toDataURL('image/png'), 'editor.png');
   }, [getCanvas]);
 
   const exportToHtml = React.useCallback(async () => {
@@ -108,9 +168,7 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
 
     const html = await serializeHtml(staticEditor, {
       editorComponent: EditorStatic,
-      props: {
-        style: { padding: '0 calc(50% - 350px)', paddingBottom: '0' },
-      },
+      props: { style: { padding: '0 calc(50% - 350px)', paddingBottom: '' } },
     });
 
     const tailwindCss = `<link rel="stylesheet" href="${SITE_URL}/tailwind.css">`;
@@ -118,52 +176,40 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
       '<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.18/dist/katex.css" integrity="sha384-9PvLvaiSKCPkFKB1ZsEoTjgnJn+O3KvEwtsz37/XrkYft3DTk2gHdYvd9oWgW3tV" crossorigin="anonymous">';
 
     const documentHtml = `<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="color-scheme" content="light dark" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap"
-      rel="stylesheet"
-    />
-    ${tailwindCss}
-    ${katexCss}
-    <style>
-      :root {
-        --font-sans: 'Inter', 'Inter Fallback';
-        --font-mono: 'JetBrains Mono', 'JetBrains Mono Fallback';
-        color-scheme: light;
-      }
-
-      body {
-        background: #ffffff;
-        color: #111111;
-      }
-    </style>
-  </head>
-  <body data-theme="light" class="">
-    ${html}
-  </body>
-</html>`;
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="light dark" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap"
+          rel="stylesheet"
+        />
+        ${tailwindCss}
+        ${katexCss}
+      </head>
+      <body>
+        ${html}
+      </body>
+    </html>`;
 
     const dataUrl = `data:text/html;charset=utf-8,${encodeURIComponent(documentHtml)}`;
-    await downloadDataUrl(dataUrl, 'editor.html');
+    await downloadFile(dataUrl, 'editor.html');
   }, [editor]);
 
   const exportToMarkdown = React.useCallback(async () => {
     if (!editor) return;
     const markdown = editor.getApi(MarkdownPlugin).markdown.serialize();
     const dataUrl = `data:text/markdown;charset=utf-8,${encodeURIComponent(markdown)}`;
-    await downloadDataUrl(dataUrl, 'editor.md');
+    await downloadFile(dataUrl, 'editor.md');
   }, [editor]);
 
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>
-        <ToolbarButton pressed={open} tooltip="Export" isDropdown disabled={disabled}>
+        <ToolbarButton pressed={open} tooltip="Export" isDropdown>
           <ArrowDownToLineIcon className="size-4" />
         </ToolbarButton>
       </DropdownMenuTrigger>

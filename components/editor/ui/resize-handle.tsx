@@ -83,9 +83,16 @@ export function Resizable({
 }: React.ComponentProps<typeof ResizablePrimitive> &
   VariantProps<typeof resizableVariants>) {
   const mergedOptions = {
-    align,
     ...(options ?? {}),
-  };
+  } as React.ComponentProps<typeof ResizablePrimitive>['options'];
+
+  if (align != null) {
+    mergedOptions.align = align;
+  } else if (mergedOptions && 'align' in (mergedOptions as Record<string, unknown>)) {
+    if ((mergedOptions as Record<string, unknown>).align == null) {
+      delete (mergedOptions as Record<string, unknown>).align;
+    }
+  }
 
   return (
     <ResizablePrimitive

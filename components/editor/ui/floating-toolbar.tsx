@@ -74,11 +74,12 @@ export function FloatingToolbar({
   return (
     <div ref={clickOutsideRef}>
       <Toolbar
+        data-type="floating-toolbar"
         {...toolbarProps}
         {...rootProps}
         ref={ref}
         className={cn(
-          'absolute z-50 scrollbar-hide overflow-x-auto rounded-md border bg-popover p-1 whitespace-nowrap opacity-100 shadow-md print:hidden',
+          'plate-toolbar absolute z-50 scrollbar-hide overflow-x-auto rounded-md border bg-popover p-1 whitespace-nowrap opacity-100 shadow-md print:hidden',
           'max-w-[80vw]',
           className
         )}

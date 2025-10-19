@@ -162,12 +162,12 @@ async function getAllJobListings(
   const query = client
     .from("job_listings")
     .select("*")
-    .order("posted_at", { ascending: false, nullsLast: true })
+    .order("posted_at", { ascending: false, nullsFirst: false })
     .range(rangeStart, rangeEnd);
 
   if (textQuery) {
     query.textSearch("search_vector", textQuery, {
-      type: "raw",
+      type: "websearch",
       config: "english",
     });
   }
@@ -242,14 +242,14 @@ async function getSavedJobListings(
     .eq("user_id", userId)
     .order("posted_at", {
       ascending: false,
-      nullsLast: true,
+      nullsFirst: false,
       foreignTable: "job_listings",
     })
     .range(rangeStart, rangeEnd);
 
   if (textQuery) {
     query.textSearch("job_listings.search_vector", textQuery, {
-      type: "raw",
+      type: "websearch",
       config: "english",
     });
   }

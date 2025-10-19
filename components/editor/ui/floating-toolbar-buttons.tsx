@@ -36,7 +36,7 @@ export function FloatingToolbarButtons() {
       </ToolbarGroup>
 
       <ToolbarGroup>
-        <BlockToolbarButton tooltip="Blockquote" type="blockquote">
+        <BlockToolbarButton tooltip="Blockquote" blockType="blockquote">
           <QuoteIcon />
         </BlockToolbarButton>
       </ToolbarGroup>

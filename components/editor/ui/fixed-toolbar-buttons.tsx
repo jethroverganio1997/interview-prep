@@ -11,7 +11,8 @@ import {
   QuoteIcon,
   UnderlineIcon,
 } from 'lucide-react';
-import { Transforms } from 'slate';
+import { Editor, Transforms } from 'slate';
+import type { Node } from 'slate';
 import { useEditorReadOnly, useEditorRef } from 'platejs/react';
 
 import { AlignToolbarButton } from '@/components/editor/ui/align-toolbar-button';
@@ -19,6 +20,7 @@ import { BlockToolbarButton } from '@/components/editor/ui/block-toolbar-button'
 import { ExportToolbarButton } from '@/components/editor/ui/export-toolbar-button';
 import { ImportToolbarButton } from '@/components/editor/ui/import-toolbar-button';
 import { MarkToolbarButton } from '@/components/editor/ui/mark-toolbar-button';
+import { LineHeightToolbarButton } from '@/components/editor/ui/line-height-toolbar-button';
 import {
   BulletedListToolbarButton,
   NumberedListToolbarButton,
@@ -34,15 +36,20 @@ export function FixedToolbarButtons() {
   const handleInsertDivider = React.useCallback(() => {
     if (!editor || readOnly) return;
 
-    Transforms.insertNodes(editor, {
+    const slateEditor = editor as unknown as Editor;
+
+    const dividerNode = {
       type: 'hr',
       children: [{ text: '' }],
-    });
+    };
 
-    Transforms.insertNodes(editor, {
+    const paragraphNode = {
       type: 'p',
       children: [{ text: '' }],
-    });
+    };
+
+    Transforms.insertNodes(slateEditor, dividerNode as unknown as Node);
+    Transforms.insertNodes(slateEditor, paragraphNode as unknown as Node);
   }, [editor, readOnly]);
 
   const handleMouseDown = React.useCallback((event: React.MouseEvent) => {
@@ -62,6 +69,10 @@ export function FixedToolbarButtons() {
 
       <ToolbarGroup>
         <FontSizeToolbarButton />
+      </ToolbarGroup>
+
+      <ToolbarGroup>
+        <LineHeightToolbarButton />
       </ToolbarGroup>
 
       <ToolbarGroup>
@@ -89,13 +100,13 @@ export function FixedToolbarButtons() {
       </ToolbarGroup>
 
       <ToolbarGroup>
-        <BlockToolbarButton tooltip="Heading 1" type="h1">
+        <BlockToolbarButton tooltip="Heading 1" blockType="h1">
           <Heading1Icon />
         </BlockToolbarButton>
-        <BlockToolbarButton tooltip="Heading 2" type="h2">
+        <BlockToolbarButton tooltip="Heading 2" blockType="h2">
           <Heading2Icon />
         </BlockToolbarButton>
-        <BlockToolbarButton tooltip="Blockquote" type="blockquote">
+        <BlockToolbarButton tooltip="Blockquote" blockType="blockquote">
           <QuoteIcon />
         </BlockToolbarButton>
       </ToolbarGroup>

@@ -37,14 +37,13 @@ export function BulletedListToolbarButton() {
   ]);
 
   return (
-    <ToolbarSplitButton pressed={open}>
+    <ToolbarSplitButton pressed={open} tooltip="Bulleted list">
       <ToolbarSplitButtonPrimary
         className="data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
         data-state={pressed ? 'on' : 'off'}
         onClick={() => {
           toggleList(editor, { listStyleType: ListStyleType.Disc });
         }}
-        tooltip="Bulleted list"
       >
         <List className="size-4" />
       </ToolbarSplitButtonPrimary>
@@ -105,14 +104,13 @@ export function NumberedListToolbarButton() {
   ]);
 
   return (
-    <ToolbarSplitButton pressed={open}>
+    <ToolbarSplitButton pressed={open} tooltip="Numbered list">
       <ToolbarSplitButtonPrimary
         className="data-[state=on]:bg-accent data-[state=on]:text-accent-foreground"
         data-state={pressed ? 'on' : 'off'}
         onClick={() =>
           toggleList(editor, { listStyleType: ListStyleType.Decimal })
         }
-        tooltip="Numbered list"
       >
         <ListOrdered className="size-4" />
       </ToolbarSplitButtonPrimary>

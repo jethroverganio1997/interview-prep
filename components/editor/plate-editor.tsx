@@ -8,6 +8,7 @@ import { Plate, usePlateEditor } from "platejs/react";
 import { BasicNodesKit } from "@/components/editor/plugins/basic-nodes-kit";
 import { FixedToolbarKit } from "@/components/editor/plugins/fixed-toolbar-kit";
 import { FloatingToolbarKit } from "@/components/editor/plugins/floating-toolbar-kit";
+import { LineHeightKit } from "@/components/editor/plugins/line-height-kit";
 import { Editor, EditorContainer } from "@/components/editor/ui/editor";
 
 export function PlateEditor() {
@@ -16,6 +17,7 @@ export function PlateEditor() {
       ...FixedToolbarKit,
       ...FloatingToolbarKit,
       ...BasicNodesKit,
+      ...LineHeightKit,
       TextAlignPlugin,
       FontSizePlugin,
       MarkdownPlugin,

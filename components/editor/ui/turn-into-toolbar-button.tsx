@@ -97,7 +97,7 @@ const turnIntoItems: TurnIntoItem[] = [
 function setBlockType(editor: Editor, type: string) {
   Transforms.setNodes(
     editor,
-    { type },
+    { type } as Partial<SlateElement>,
     {
       match: (node) =>
         SlateElement.isElement(node) && Editor.isBlock(editor, node),
@@ -132,7 +132,8 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
   const value =
     useSelectionFragmentProp({
       defaultValue: KEYS.p,
-      getProp: (node) => (node as SlateElement).type,
+      getProp: (node) =>
+        SlateElement.isElement(node) ? (node.type as string | undefined) : undefined,
     }) ?? KEYS.p;
   const currentValue = isBulleted
     ? KEYS.ul
@@ -172,7 +173,7 @@ export function TurnIntoToolbarButton(props: DropdownMenuProps) {
               if (isNumbered) {
                 toggleList(editor, { listStyleType: ListStyleType.Decimal });
               }
-              setBlockType(editor, item.value);
+              setBlockType(editor as unknown as Editor, item.value);
             }
 
             editor.tf.focus();
