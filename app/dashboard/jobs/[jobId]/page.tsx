@@ -25,7 +25,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
 
   const resolvedParams = await Promise.resolve(params);
   const jobId = decodeURIComponent(resolvedParams.jobId);
-  const result = await getJobListingById(supabase, jobId, user.id ?? null);
+  const result = await getJobListingById(supabase, jobId);
 
   if (!result.data) {
     notFound();
@@ -44,7 +44,7 @@ export default async function JobDetailPage({ params }: JobDetailPageProps) {
             </Link>
           </Button>
         </div>
-        <JobDetail job={result.data} isSaved={result.isSaved} errorMessage={errorMessage} />
+        <JobDetail job={result.data} errorMessage={errorMessage} />
       </div>
     </div>
   );

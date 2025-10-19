@@ -1,4 +1,4 @@
-import { ArrowUpRight, BookmarkCheck, CalendarDays, ExternalLink, Globe, MapPin, Users } from "lucide-react";
+import { ArrowUpRight, CalendarDays, ExternalLink, Globe, MapPin } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -20,19 +20,20 @@ import { Markdown } from "@/app/dashboard/_components/markdown";
 
 interface JobDetailProps {
   job: JobListingRow;
-  isSaved: boolean;
   errorMessage?: string | null;
 }
 
-export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
-  const salaryLabel = formatSalary(job.salary ?? undefined);
-  const postedAt = formatPostedAt(job.posted_at ?? undefined, job.posted_at_epoch);
-  const applicantCount = job.applicant_count ?? undefined;
+export function JobDetail({ job, errorMessage }: JobDetailProps) {
+  const companyName = job.company ?? "Unknown company";
+  const salaryLabel = formatSalary(job.salary);
+  const postedAt = formatPostedAt(job.posted_at);
+  const appliedAt = formatPostedAt(job.applied_at);
+  const lastUpdated = formatPostedAt(job.last_updated);
   const location = job.location ?? undefined;
   const workType = job.work_type ?? undefined;
-  const benefits = job.benefits ?? [];
-  const jobInsights = job.job_insights ?? [];
+  const workArrangement = job.work_arrangement ?? undefined;
   const skills = job.skills ?? [];
+  const experienceNeeded = job.experience_needed ?? undefined;
   const descriptionMarkdown = job.description_md?.trim();
   const descriptionPlain = job.description?.trim();
   const descriptionContent = descriptionMarkdown?.length
@@ -40,8 +41,9 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
     : descriptionPlain?.length
       ? descriptionPlain
       : "No description provided.";
-  const sourceDomain = getDomainFromUrl(job.job_url) ?? "Source unknown";
-  const applyHref = job.apply_url ?? job.job_url;
+  const sourceDomain =
+    job.source ?? getDomainFromUrl(job.job_url ?? job.apply_url) ?? "Source unknown";
+  const applyHref = job.apply_url ?? job.job_url ?? "";
 
   return (
     <article className="grid gap-6">
@@ -55,19 +57,17 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
         <CardHeader className="flex flex-col gap-6 md:flex-row md:items-start md:justify-between md:gap-8">
           <div className="flex items-start gap-4">
             <div className="flex size-14 items-center justify-center rounded-xl border border-border/60 bg-muted/70 text-base font-semibold uppercase text-foreground">
-              {getInitials(job.company)}
+              {getInitials(companyName)}
             </div>
             <div className="space-y-2">
               <CardTitle className="text-2xl font-semibold leading-tight text-foreground">
-                {job.job_title}
+                {job.title}
               </CardTitle>
               <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-                <span className="font-medium text-foreground">
-                  {job.company}
-                </span>
+                <span className="font-medium text-foreground">{companyName}</span>
                 {location ? (
                   <>
-                    <span aria-hidden>•</span>
+                    <span aria-hidden>{"\u2022"}</span>
                     <span className="flex items-center gap-1">
                       <MapPin className="h-4 w-4 text-muted-foreground" aria-hidden />
                       {location}
@@ -76,12 +76,18 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
                 ) : null}
                 {workType ? (
                   <>
-                    <span aria-hidden>•</span>
+                    <span aria-hidden>{"\u2022"}</span>
                     <span>{workType}</span>
                   </>
                 ) : null}
+                {workArrangement ? (
+                  <>
+                    <span aria-hidden>{"\u2022"}</span>
+                    <span>{workArrangement}</span>
+                  </>
+                ) : null}
                 <>
-                  <span aria-hidden>•</span>
+                  <span aria-hidden>{"\u2022"}</span>
                   <span className="flex items-center gap-1">
                     <Globe className="h-4 w-4 text-muted-foreground" aria-hidden />
                     <span className="font-medium text-foreground">{sourceDomain}</span>
@@ -89,27 +95,27 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
                 </>
               </div>
               <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                {applicantCount ? (
-                  <span className="flex items-center gap-1">
-                    <Users className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    <span className="font-medium text-foreground">{applicantCount}</span>
-                  </span>
-                ) : null}
                 {postedAt ? (
                   <span className="flex items-center gap-1">
                     <CalendarDays className="h-4 w-4 text-muted-foreground" aria-hidden />
-                    <span>{postedAt}</span>
+                    <span>Posted {postedAt}</span>
                   </span>
                 ) : null}
+                {appliedAt ? <span>Applied {appliedAt}</span> : null}
+                {lastUpdated ? <span>Updated {lastUpdated}</span> : null}
                 {salaryLabel ? (
                   <Badge variant="secondary" className="bg-primary/10 px-2 py-1 text-xs font-medium text-primary">
                     {salaryLabel}
                   </Badge>
                 ) : null}
-                {isSaved ? (
-                  <Badge variant="secondary" className="bg-emerald-500/10 px-2 py-1 text-xs font-medium text-emerald-600">
-                    <BookmarkCheck className="mr-1 h-3.5 w-3.5" aria-hidden />
-                    Saved
+                {job.status ? (
+                  <Badge variant="outline" className="border-border/60 bg-background/70 px-2 py-1 text-xs font-medium">
+                    Status: {job.status}
+                  </Badge>
+                ) : null}
+                {job.priority ? (
+                  <Badge variant="outline" className="border-border/60 bg-background/70 px-2 py-1 text-xs font-medium">
+                    Priority: {job.priority}
                   </Badge>
                 ) : null}
               </div>
@@ -124,15 +130,17 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
                 </Link>
               </Button>
             ) : null}
-            <Link
-              href={job.job_url}
-              target="_blank"
-              rel="noreferrer noopener"
-              className="inline-flex items-center gap-1 text-sm font-medium text-primary transition hover:text-primary/80"
-            >
-              View original listing
-              <ArrowUpRight className="h-4 w-4" aria-hidden />
-            </Link>
+            {job.job_url ? (
+              <Link
+                href={job.job_url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="inline-flex items-center gap-1 text-sm font-medium text-primary transition hover:text-primary/80"
+              >
+                View original listing
+                <ArrowUpRight className="h-4 w-4" aria-hidden />
+              </Link>
+            ) : null}
           </div>
         </CardHeader>
         <CardContent className="grid gap-8 px-6 pb-8">
@@ -143,41 +151,12 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
             <Markdown content={descriptionContent} className="text-sm leading-relaxed text-muted-foreground" />
           </section>
 
-          {jobInsights.length ? (
+          {experienceNeeded ? (
             <section className="space-y-3">
               <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Highlights
+                Experience
               </h2>
-              <div className="flex flex-wrap gap-2">
-                {jobInsights.map((insight) => (
-                  <Badge
-                    key={`${job.job_id}-insight-${insight}`}
-                    variant="secondary"
-                    className="bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
-                  >
-                    {insight}
-                  </Badge>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          {benefits.length ? (
-            <section className="space-y-3">
-              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
-                Benefits
-              </h2>
-              <div className="flex flex-wrap gap-2">
-                {benefits.map((benefit) => (
-                  <Badge
-                    key={`${job.job_id}-benefit-${benefit}`}
-                    variant="outline"
-                    className="border-border/60 bg-background/70 px-2 py-1 text-xs font-medium"
-                  >
-                    {benefit}
-                  </Badge>
-                ))}
-              </div>
+              <p className="text-sm text-muted-foreground">{experienceNeeded}</p>
             </section>
           ) : null}
 
@@ -189,13 +168,24 @@ export function JobDetail({ job, isSaved, errorMessage }: JobDetailProps) {
               <div className="flex flex-wrap gap-2">
                 {skills.map((skill) => (
                   <Badge
-                    key={`${job.job_id}-skill-${skill}`}
+                    key={`${job.id}-skill-${skill}`}
                     variant="secondary"
                     className="bg-primary/10 px-2 py-1 text-xs font-medium text-primary"
                   >
                     {skill}
                   </Badge>
                 ))}
+              </div>
+            </section>
+          ) : null}
+
+          {job.notes ? (
+            <section className="space-y-3">
+              <h2 className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">
+                Notes
+              </h2>
+              <div className="rounded-md border border-border/60 bg-muted/40 p-4 text-sm text-muted-foreground">
+                <p className="whitespace-pre-line">{job.notes}</p>
               </div>
             </section>
           ) : null}

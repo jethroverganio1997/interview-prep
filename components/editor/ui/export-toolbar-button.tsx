@@ -38,6 +38,17 @@ async function downloadFile(url: string, filename: string) {
   window.URL.revokeObjectURL(blobUrl);
 }
 
+async function downloadBlob(blob: Blob, filename: string) {
+  const blobUrl = window.URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = blobUrl;
+  link.download = filename;
+  document.body.append(link);
+  link.click();
+  link.remove();
+  window.URL.revokeObjectURL(blobUrl);
+}
+
 export function ExportToolbarButton(props: DropdownMenuProps) {
   const editor = useEditorRef();
   const [open, setOpen] = React.useState(false);
@@ -206,6 +217,64 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
     await downloadFile(dataUrl, 'editor.md');
   }, [editor]);
 
+  const exportToDocx = React.useCallback(async () => {
+    if (!editor) return;
+
+    const staticEditor = createSlateEditor({
+      plugins: BaseEditorKit,
+      value: editor.children,
+    });
+
+    const html = await serializeHtml(staticEditor, {
+      editorComponent: EditorStatic,
+      props: { style: { padding: '0 calc(50% - 350px)', paddingBottom: '' } },
+    });
+
+    const documentHtml = `<!DOCTYPE html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta name="color-scheme" content="light dark" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400..700&family=JetBrains+Mono:wght@400..700&display=swap"
+          rel="stylesheet"
+        />
+        <style>
+          @page {
+            size: A4;
+            margin: 1in;
+          }
+          :root {
+            color-scheme: light;
+          }
+          body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: #111111;
+          }
+        </style>
+      </head>
+      <body>
+        ${html}
+      </body>
+    </html>`;
+
+    const htmlDocxModule = (await import('html-docx-js/dist/html-docx')) as {
+      default?: { asBlob: (html: string) => Blob };
+      asBlob?: (html: string) => Blob;
+    };
+    const asBlob =
+      typeof htmlDocxModule.default?.asBlob === 'function'
+        ? htmlDocxModule.default.asBlob.bind(htmlDocxModule.default)
+        : htmlDocxModule.asBlob;
+    if (!asBlob) return;
+
+    const blob = asBlob(documentHtml);
+    await downloadBlob(blob, 'editor.docx');
+  }, [editor]);
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen} modal={false} {...props}>
       <DropdownMenuTrigger asChild>
@@ -221,6 +290,9 @@ export function ExportToolbarButton(props: DropdownMenuProps) {
           <DropdownMenuItem onSelect={exportToImage}>Export as Image</DropdownMenuItem>
           <DropdownMenuItem onSelect={exportToMarkdown}>
             Export as Markdown
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={exportToDocx}>
+            Export as Word (A4)
           </DropdownMenuItem>
         </DropdownMenuGroup>
       </DropdownMenuContent>

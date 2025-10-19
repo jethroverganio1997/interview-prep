@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { LogoutButton } from "@/app/auth/_components/logout-button";
 import { JobFeed } from "@/app/dashboard/_components/job-feed";
-import { getJobListings, getSavedJobIds } from "@/app/dashboard/_lib/actions";
+import { getJobListings } from "@/app/dashboard/_lib/actions";
 import { createClient } from "@/lib/server";
 
 export default async function ProtectedPage() {
@@ -16,23 +16,13 @@ export default async function ProtectedPage() {
   const user = data.user;
   const email = user.email ?? "";
   const greetingName = email.split("@")[0] || "there";
-  const userId = user.id ?? null;
 
   const jobListingsResult = await getJobListings(supabase, {
     limit: 9,
-    userId,
   });
 
-  const savedJobsResponse = userId
-    ? await getSavedJobIds(supabase, userId)
-    : { data: [], error: null };
-
-  const initialSavedJobIds =
-    savedJobsResponse.data?.map((row) => row.job_id) ?? [];
   const initialErrorMessage =
-    jobListingsResult.error?.message ??
-    savedJobsResponse.error?.message ??
-    null;
+    jobListingsResult.error?.message ?? null;
 
   return (
     <div className="w-full bg-muted/10">
@@ -52,13 +42,10 @@ export default async function ProtectedPage() {
 
         <JobFeed
           initialRows={jobListingsResult.data}
-          initialSavedJobIds={initialSavedJobIds}
           initialHasMore={jobListingsResult.hasMore}
-          userId={userId}
           initialError={initialErrorMessage}
         />
       </div>
     </div>
   );
 }
-

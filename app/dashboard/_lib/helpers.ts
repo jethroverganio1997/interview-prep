@@ -1,44 +1,44 @@
 import type { JobCardProps } from "../_components/job-card";
 import type { JobListingRow } from "./types";
 
-export function mapRowToCard(
-  row: JobListingRow,
-  isSaved = false
-): JobCardProps {
+export function mapRowToCard(row: JobListingRow): JobCardProps {
   return {
-    id: row.job_id,
-    title: row.job_title,
-    companyName: row.company,
+    id: row.id,
+    title: row.title,
+    companyName: row.company ?? "Unknown company",
     companyUrl: row.company_url ?? undefined,
     location: row.location ?? undefined,
     workType: row.work_type ?? undefined,
+    workArrangement: row.work_arrangement ?? undefined,
     salary: row.salary ?? undefined,
     postedAt: row.posted_at ?? undefined,
-    postedAtEpoch: row.posted_at_epoch ?? undefined,
-    benefits: row.benefits ?? [],
-    jobInsights: row.job_insights ?? [],
-    skills: row.skills ?? [],
     description: summariseDescription(row.description),
-    listingUrl: row.job_url,
+    listingUrl: row.job_url ?? row.apply_url ?? "#",
     applyUrl: row.apply_url ?? undefined,
-    applicantCount: row.applicant_count ?? undefined,
-    isEasyApply: row.is_easy_apply ?? false,
-    isPromoted: row.is_promoted ?? false,
-    isVerified: row.is_verified ?? false,
-    navigationSubtitle: row.navigation_subtitle ?? undefined,
-    isSaved,
-    detailHref: `/dashboard/jobs/${row.job_id}`,
+    skills: row.skills ?? [],
+    status: row.status ?? undefined,
+    priority: row.priority ?? undefined,
+    lastUpdated: row.last_updated ?? undefined,
+    experienceNeeded: row.experience_needed ?? undefined,
+    appliedAt: row.applied_at ?? undefined,
+    notes: row.notes ?? undefined,
+    source: row.source ?? undefined,
+    detailHref: `/dashboard/jobs/${row.id}`,
   };
 }
 
-export function formatSalary(value?: string) {
+export function formatSalary(value?: string | null) {
   return value ? value.trim() : null;
 }
 
-export function formatPostedAt(value?: string, epoch?: number | null): string | null {
-  const date = value ? new Date(value) : epoch ? new Date(epoch) : null;
-  if (!date || Number.isNaN(date.getTime())) {
+export function formatPostedAt(value?: string | null): string | null {
+  if (!value) {
     return null;
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return value;
   }
 
   const now = new Date();
@@ -50,24 +50,25 @@ export function formatPostedAt(value?: string, epoch?: number | null): string | 
 
   if (diffSeconds < 60) {
     return "Just now";
-  } else if (diffMinutes < 60) {
-    return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
-  } else if (diffHours < 24) {
-    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
-  } else if (diffDays < 7) {
-    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
-  } else {
-    // fallback to readable date
-    return date.toLocaleDateString("en-US", {
-      month: "short",
-      day: "numeric",
-      year: "numeric",
-    });
   }
+  if (diffMinutes < 60) {
+    return `${diffMinutes} minute${diffMinutes !== 1 ? "s" : ""} ago`;
+  }
+  if (diffHours < 24) {
+    return `${diffHours} hour${diffHours !== 1 ? "s" : ""} ago`;
+  }
+  if (diffDays < 7) {
+    return `${diffDays} day${diffDays !== 1 ? "s" : ""} ago`;
+  }
+
+  return date.toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
 }
 
-
-export function getInitials(value?: string) {
+export function getInitials(value?: string | null) {
   if (!value) {
     return "?";
   }
@@ -82,14 +83,6 @@ export function getInitials(value?: string) {
   }
 
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-}
-
-export function mapRowsToCards(
-  rows: JobListingRow[],
-  savedJobIds: Iterable<string>
-) {
-  const savedSet = new Set(savedJobIds);
-  return rows.map((row) => mapRowToCard(row, savedSet.has(row.job_id)));
 }
 
 function summariseDescription(value?: string | null) {

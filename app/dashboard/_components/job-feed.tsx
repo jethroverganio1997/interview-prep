@@ -1,9 +1,8 @@
 "use client";
 
-import { Bookmark, FileSearch, Loader2 } from "lucide-react";
+import { FileSearch, Loader2 } from "lucide-react";
 
 import { Input } from "@/components/ui/input";
-import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/empty-state";
@@ -18,8 +17,6 @@ export function JobFeed(props: JobFeedProps) {
     searchInput,
     setSearchInput,
     clearSearch,
-    savedOnly,
-    setSavedOnly,
     debouncedSearch,
     cards,
     fetchError,
@@ -32,37 +29,19 @@ export function JobFeed(props: JobFeedProps) {
   const showEmptyState =
     !isLoading && cards.length === 0 && !fetchError;
 
-  const emptyStateTitle = savedOnly
-    ? "No saved jobs yet"
-    : debouncedSearch
-      ? "No matches found"
-      : "No job listings available";
+  const emptyStateTitle = debouncedSearch
+    ? "No matches found"
+    : "No job listings available";
 
-  const emptyStateDescription = savedOnly
-    ? "Jobs you save will appear here. Use the bookmark button on a listing to keep track of roles you like."
-    : debouncedSearch
-      ? "Try a different keyword or clear your search to browse all opportunities."
-      : "Add records in Supabase or adjust your filters to see roles populate this view.";
+  const emptyStateDescription = debouncedSearch
+    ? "Try another keyword or clear the search to browse all roles."
+    : "Add job records in Supabase to populate this dashboard.";
 
-  const emptyStateActions = savedOnly
-    ? (
-        <Button type="button" onClick={() => setSavedOnly(false)}>
-          View all jobs
-        </Button>
-      )
-    : debouncedSearch
-      ? (
-          <Button type="button" onClick={clearSearch}>
-            Clear search
-          </Button>
-        )
-      : undefined;
-
-  const emptyStateIcon = savedOnly ? (
-    <Bookmark className="size-5" aria-hidden />
-  ) : (
-    <FileSearch className="size-5" aria-hidden />
-  );
+  const emptyStateActions = debouncedSearch ? (
+    <Button type="button" onClick={clearSearch}>
+      Clear search
+    </Button>
+  ) : undefined;
 
   return (
     <div className="flex flex-col gap-6">
@@ -87,15 +66,6 @@ export function JobFeed(props: JobFeedProps) {
             ) : null}
           </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Switch
-            id="saved-only"
-            checked={savedOnly}
-            onCheckedChange={(checked) => setSavedOnly(checked)}
-            disabled={isLoading}
-          />
-          <Label htmlFor="saved-only">Show saved jobs</Label>
-        </div>
       </div>
 
       {fetchError ? (
@@ -112,7 +82,7 @@ export function JobFeed(props: JobFeedProps) {
 
       {showEmptyState ? (
         <EmptyState
-          icon={emptyStateIcon}
+          icon={<FileSearch className="size-5" aria-hidden />}
           title={emptyStateTitle}
           description={emptyStateDescription}
           actions={emptyStateActions}

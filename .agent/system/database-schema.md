@@ -1,49 +1,41 @@
 ## Supabase Overview
-The project connects to a Supabase backend configured through `supabase/config.toml`. The configuration enables Supabase Auth for user management and now tracks SQL migrations under `supabase/migrations/` (e.g. `20251016153000_create_job_listings.sql`, `20251101090000_add_search_vector_and_saved_jobs.sql`).
+The project connects to Supabase via `supabase/config.toml`. SQL changes are versioned under `supabase/migrations/`, with key milestones:
+- `20251201100000_job_schema.sql` - current canonical shape; drops saved-job tables and rebuilds job listings to match the new contract.
 
 ## Auth Tables
-Supabase provisions the following core tables automatically:
-- `auth.users`: Stores user accounts, email addresses, and metadata.
-- `auth.identities`: Maps third-party identity providers when enabled.
-- `auth.sessions`: Tracks logged-in sessions for token validation.
+Supabase provisioned tables handle authentication plumbing:
+- `auth.users` - primary user rows (email, metadata).
+- `auth.identities` - third-party identity links.
+- `auth.sessions` - active session tokens consumed by `createClient` helpers.
 
 ## Application Data
 ### `public.job_listings`
-- **Purpose:** Stores LinkedIn-style job postings that hydrate the dashboard cards.
-- **Key columns:**
-  - `job_id text primary key` – Stable job identifier from LinkedIn.
-  - `job_title text`, `job_url text` – Display title and canonical listing URL.
-  - `company text`, `company_url text`, `company_urn text` – Company display string, public profile link, and LinkedIn URN.
-  - `location text`, `work_type text` – Geography and working arrangement (Remote, Hybrid, etc.).
-  - `salary text` – Raw salary string supplied by the feed.
-  - `posted_at timestamptz`, `posted_at_epoch bigint` – Publication timestamp in ISO and epoch milliseconds for flexibility.
-  - `skills text[]`, `benefits text[]`, `job_insights text[]` – Arrays surfaced as skill/benefit/insight badges.
-  - `is_easy_apply boolean`, `is_promoted boolean`, `is_verified boolean` – Flags that drive badge rendering.
-  - `applicant_count text` – Human readable applicant volume (e.g. “over 100 applicants”).
-  - `description text` – Full job summary used for truncation on the card.
-  - `description_md text` – Full job summary in markdown format used to display job description in job page.
-  - `navigation_subtitle text`, `geo_id text` – Supplemental metadata used for LinkedIn navigation cues.
-  - `created_at timestamptz`, `created_at_epoch bigint` – Ingestion timestamps.
-  - `apply_url text` – Direct apply link; falls back to `job_url` when absent.
-  - `search_vector tsvector` – Generated column combining title, company, location, and description for prefix full-text search (GIN indexed).
-- **Access:** Row Level Security remains enabled with policy `Allow authenticated job list reads` allowing `select` for authenticated users.
-- **Seed data:** Migration `20251017120000_update_job_listings_schema.sql` inserts the “Senior Frontend Developer” posting from Socium as sample data.
-
-### `public.saved_jobs`
-- **Purpose:** Stores bookmarks that tie an authenticated user to job listings they want to revisit.
-- **Key columns:**
-  - `user_id uuid` – References `auth.users.id`; cascades on delete.
-  - `job_id text` – References `public.job_listings.job_id`; cascades on delete.
-  - `created_at timestamptz` – Timestamp when the bookmark was created, defaulting to `now()`.
-- **Indexes & Constraints:** Composite primary key on `(user_id, job_id)` plus supporting index `(user_id, created_at desc)` for efficient pagination.
-- **Access:** RLS policies allow owners to `select`, `insert`, and `delete` their own rows.
+- **Purpose:** Single table backing dashboard cards and the job detail view. Stores both source-provided fields and personal tracking metadata.
+- **Columns:**
+  - `id text primary key` - unique identifier from the upstream feed.
+  - `title text` - job title rendered across the UI.
+  - `company text`, `company_url text` - company display name and optional external profile.
+  - `location text`, `work_type text`, `work_arrangement text` - geography and working pattern (Full-time, Remote, Hybrid, etc.).
+  - `salary text` - free-form salary information captured from the source.
+  - `description text`, `description_md text` - plain-text and markdown role summaries.
+  - `skills text[]` - ordered list of skills/tools highlighted in the feed.
+  - `experience_needed text` - human readable requirement (e.g., "3+ years").
+  - `posted_at text` - ISO string of when the job was posted by the source platform.
+  - `apply_url text`, `job_url text` - direct application link and canonical listing URL.
+  - `source text` - originating platform identifier (LinkedIn, Indeed, etc.).
+  - `status text`, `applied_at text`, `notes text`, `priority text`, `last_updated text` - personal tracking fields maintained inside the product.
+  - `search_vector tsvector` - generated column weighting title/company/location/description for full-text search (GIN indexed via `job_listings_search_vector_idx`).
+- **RLS:** Policy `Allow authenticated job list reads` lets authenticated users `select` all rows; writes remain application controlled.
+- **Legacy note:** The `saved_jobs` table introduced in 2025-11 has been removed. Bookmarks are no longer part of the data model.
 
 ## Creating New Schema
 1. Run `supabase migration new <name>` to scaffold a migration file.
-2. Edit the generated SQL to define tables or functions.
-3. Apply remotely with `supabase db reset --linked`.
-4. Commit both the migration and updates to this document describing the new entities.
+2. Implement the SQL changes (include column comments and indexes).
+3. Apply remotely with `supabase db reset --linked` so the hosted project stays in sync.
+4. Regenerate runtime types: `supabase gen types typescript --linked > types/database.types.ts`.
+5. Update this document so future agents understand the latest schema shape.
 
 ## Future Guidance
-- Keep business data in the public schema unless privacy requires restricted schemas.
-- Mirror table descriptions here with column summaries, constraints, and index notes as they are added.
+- Keep the schema minimal - prefer optional scalar columns over new tables unless there is a clear relational need.
+- When expanding search, update the `search_vector` definition and recreate the GIN index in the same migration.
+- Document every column addition (purpose, type, constraints) here to preserve a single source of truth.
