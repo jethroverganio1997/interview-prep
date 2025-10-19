@@ -36,9 +36,11 @@ lib/
 - `app/dashboard/_components/job-detail.tsx` formats the complete job payload (description, badges, external links) for the detail page, rendering markdown descriptions when available, showing the source domain, and surfacing saved status hints.
 - `app/dashboard/_components/markdown.tsx` wraps `react-markdown` with Tailwind-aware typography so feature modules can safely render GitHub-flavoured markdown.
 - `app/dashboard/_lib/use-job-feed.ts` centralises the job feed client state, Supabase pagination/search, and optimistic saved-job handling so other dashboard widgets can reuse the same contract.
+- `app/editor/page.tsx` renders the Plate demo editor, delegating to `components/editor/plate-editor.tsx`, which now composes the basic nodes kit with fixed and floating toolbar plugins to expose formatting controls.
 - `components/ui/` mirrors the shadcn/ui registry, offering low-level building blocks (`card`, `button`, `badge`, etc.).
 - `components/ui/empty.tsx` brings the shadcn `Empty` primitive variants into the project for consistent empty-state building blocks.
 - `components/empty-state.tsx` composes those primitives into an app-level empty state with optional icons, actions, and footer links for reuse across features.
+- `components/editor/plugins/` holds Plate configuration helpers (basic nodes kit plus the shared `fixed-toolbar-kit` and `floating-toolbar-kit`) so editor variants can opt in to common plugin bundles. The fixed toolbar pieces (`components/editor/ui/fixed-toolbar*`) now mirror Plate's sample by living in a single row that can be swiped horizontally thanks to the `tailwind-scrollbar-hide` plugin, while floating controls rely on `@platejs/floating` for collision-aware positioning. Import/export actions, alignment, font-size steppers, the “turn into” block menu, and list utilities sit alongside mark toggles so editor variants can opt in as needed.
 - `components/` houses higher-level widgets such as `header.tsx`, `footer.tsx`, which use in multiple route.
 - `lib/server.ts` and `lib/client.ts` (not all shown here) provide Supabase client factories for server and browser contexts, ensuring consistent session handling.
 

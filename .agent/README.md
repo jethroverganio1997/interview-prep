@@ -11,6 +11,7 @@
 - [design-search](sop/design-search.md) - SOP for selecting shadcn/ui components with MCP tools.
 
 ### Tasks
+- [editor-toolbar](tasks/editor-toolbar.md) - Plan for adding fixed and floating toolbars to the Plate editor.
 - [dashboard-job-listings](tasks/dashboard-job-listings.md) - Supabase-backed job cards powering the dashboard.
 - [search-saved-infinite-scroll](tasks/search-saved-infinite-scroll.md) - Plan for dashboard search, saved jobs, and infinite scrolling.
 - [job-detail-page](tasks/job-detail-page.md) - Plan for adding an in-app job listing detail view.

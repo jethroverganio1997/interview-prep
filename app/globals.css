@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@plugin "tailwind-scrollbar-hide";
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
@@ -68,6 +69,8 @@
   --color-one: #ffbd7a;
   --color-two: #fe8bbb;
   --color-three: #9e7aff;
+  --highlight: oklch(0.852 0.199 91.936);
+  --brand: oklch(0.6171 0.1375 39.0427);
 }
 
 .dark {
@@ -133,6 +136,8 @@
   --color-one: #ffbd7a;
   --color-two: #fe8bbb;
   --color-three: #9e7aff;
+  --highlight: oklch(0.852 0.199 91.936);
+  --brand: oklch(0.6724 0.1308 38.7559);
 }
 
 @theme {
@@ -202,6 +207,8 @@
   --animate-fade-in: fade-in 1s ease-out forwards;
   --animate-fade-up: fade-up 1s ease-out forwards;
   --animate-image-glow: image-glow 4100ms 600ms ease-out forwards;
+  --color-brand: var(--brand);
+  --color-highlight: var(--highlight);
   @keyframes marquee {
     from {
       transform: translateX(0);
