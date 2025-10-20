@@ -28,7 +28,7 @@ lib/
 - `app/<route>/_lib/` gathers non-visual logic (types, data fetchers, hooks, helpers). Each module leans on generated Supabase types imported from `types/database.types.ts`.
 - `app/dashboard/page.tsx` validates the session, performs the first `job_listings` fetch on the server, and hydrates the client feed with initial data and any error message.
 - `app/dashboard/_components/job-feed.tsx` wires the Supabase-backed search + pagination hook to the client UI and renders the data table.
-- `app/dashboard/_components/job-table.tsx` renders the TanStack-powered shadcn data table, providing column-per-field output, multi-select column filters, column visibility controls, row actions, and popover-based inline editors that persist status/priority/date/note changes back to Supabase without shifting the layout.
+- `app/dashboard/_components/job-table.tsx` renders the TanStack-powered shadcn data table, providing column-per-field output, multi-select column filters, column visibility controls, row actions, popover-based inline editors that persist status/priority/date/note changes back to Supabase without shifting the layout, and Radix hover cards that surface full company/salary/experience/skills text when truncated in the grid.
 - `app/dashboard/_components/job-detail.tsx` renders the full role overview, personal tracking metadata, and source links.
 - `app/dashboard/_lib/use-job-feed.ts` owns client-side state: debounced search term, pagination, inline update helpers, and fetch status while returning raw Supabase rows for the table.
 - `app/dashboard/_lib/actions.ts` exposes shared server/client query helpers that respect the new `id`/`title` schema, including inline update support for tracking fields.

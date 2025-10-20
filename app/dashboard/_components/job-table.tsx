@@ -36,6 +36,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
+import {
   formatPostedAt,
   formatSalary,
   getPriorityTone,
@@ -124,11 +129,29 @@ export function JobTable({
       {
         accessorKey: "company",
         header: "Company",
-        cell: ({ row }) => (
-          <span className="min-w-max whitespace-nowrap line-clamp-1 text-sm text-foreground">
-            {row.original.company ?? "--"}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const company = row.original.company?.trim();
+
+          if (!company) {
+            return "--";
+          }
+
+          return (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="min-w-max whitespace-nowrap line-clamp-1 text-sm text-foreground">
+                  {company}
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                className="max-w-sm text-sm text-foreground"
+              >
+                {company}
+              </HoverCardContent>
+            </HoverCard>
+          );
+        },
         size: 180,
       },
       {
@@ -168,24 +191,51 @@ export function JobTable({
       {
         accessorKey: "salary",
         header: "Salary",
-        cell: ({ row }) =>
-          row.original.salary ? (
-            <span className="min-w-max whitespace-nowrap inline-flex items-center gap-1 text-sm text-muted-foreground line-clamp-1">
-              {formatSalary(row.original.salary) ?? "N/A"}
-            </span>
-          ) : (
-            "N/A"
-          ),
+        cell: ({ row }) => {
+          const formatted = formatSalary(row.original.salary);
+
+          if (!formatted) {
+            return "N/A";
+          }
+
+          return (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="min-w-max whitespace-nowrap inline-flex items-center gap-1 text-sm text-muted-foreground line-clamp-1">
+                  {formatted}
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent align="start" className="max-w-sm text-sm">
+                {formatted}
+              </HoverCardContent>
+            </HoverCard>
+          );
+        },
         size: 120,
       },
       {
         accessorKey: "experience_needed",
         header: "Experience",
-        cell: ({ row }) => (
-          <span className="line-clamp-1 text-sm text-foreground">
-            {row.original.experience_needed ?? "--"}
-          </span>
-        ),
+        cell: ({ row }) => {
+          const experience = row.original.experience_needed?.trim();
+
+          if (!experience) {
+            return "--";
+          }
+
+          return (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="line-clamp-1 text-sm text-foreground">
+                  {experience}
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent align="start" className="max-w-sm text-sm">
+                {experience}
+              </HoverCardContent>
+            </HoverCard>
+          );
+        },
         size: 160,
       },
       {
@@ -201,10 +251,32 @@ export function JobTable({
               ? ` +${row.original.skills.length - 4}`
               : "";
           return (
-            <span className="line-clamp-1 text-sm text-muted-foreground">
-              {summary}
-              {more}
-            </span>
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="line-clamp-1 text-sm text-muted-foreground">
+                  {summary}
+                  {more}
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                className="max-w-sm space-y-2 text-sm"
+              >
+                <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Skills
+                </div>
+                <div className="flex flex-wrap gap-1">
+                  {row.original.skills.map((skill) => (
+                    <span
+                      key={skill}
+                      className="rounded-md bg-muted px-2 py-0.5 text-xs text-muted-foreground"
+                    >
+                      {skill}
+                    </span>
+                  ))}
+                </div>
+              </HoverCardContent>
+            </HoverCard>
           );
         },
         size: 220,

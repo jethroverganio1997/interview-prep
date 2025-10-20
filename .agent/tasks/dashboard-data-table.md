@@ -45,6 +45,7 @@ With saved-job functionality removed, the dashboard now presents listings as sta
 - Added shadcn table primitives (`components/ui/table.tsx`) and the TanStack dependency to support a feature-rich data table.
 - Replaced the card grid with a column-per-field `JobTable` that mirrors every Supabase column, adds multi-select column filters, column visibility controls, and row actions while reusing the existing `useJobFeed` data flow.
 - Simplified the feed hook and helpers to expose raw Supabase rows, introduced tone utilities for status/priority badges, and restyled `JobFeed` to hand search state into the table header.
+- Added hover card presentation for the company, salary, experience, and skills columns so truncated cells reveal full context on hover.
 - Refreshed architecture documentation to reflect the new data table architecture.
 
 ## Validation Notes
