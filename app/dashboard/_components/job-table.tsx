@@ -13,7 +13,13 @@ import {
   SortingState,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, MapPin, MoreHorizontal, SlidersHorizontal, X } from "lucide-react";
+import {
+  ArrowUpDown,
+  MapPin,
+  MoreHorizontal,
+  SlidersHorizontal,
+  X,
+} from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -112,7 +118,7 @@ export function JobTable({
           <Button
             variant="ghost"
             size="sm"
-            className="-ml-2 gap-1.5 text-xs font-semibold tracking-wide"
+            className="-ml-2 gap-1.5 text-md font-semibold tracking-wide"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
             Job Title
@@ -139,7 +145,7 @@ export function JobTable({
           return (
             <HoverCard>
               <HoverCardTrigger asChild>
-                <span className="min-w-max whitespace-nowrap line-clamp-1 text-sm text-foreground">
+                <span className="line-clamp-1 text-sm text-foreground">
                   {company}
                 </span>
               </HoverCardTrigger>
@@ -157,15 +163,30 @@ export function JobTable({
       {
         accessorKey: "location",
         header: "Location",
-        cell: ({ row }) =>
-          row.original.location ? (
-            <span className="min-w-max whitespace-nowrap inline-flex items-center gap-1 text-sm text-muted-foreground line-clamp-1">
-              <MapPin className="h-3 w-3" aria-hidden />
-              {row.original.location}
-            </span>
-          ) : (
-            "--"
-          ),
+        cell: ({ row }) => {
+          const location = row.original.location?.trim();
+
+          if (!location) {
+            return "--";
+          }
+
+          return (
+            <HoverCard>
+              <HoverCardTrigger asChild>
+                <span className="line-clamp-1 text-sm text-foreground">
+                  {location}
+                </span>
+              </HoverCardTrigger>
+              <HoverCardContent
+                align="start"
+                className="inline-flex items-center gap-1 max-w-sm text-sm text-foreground"
+              >
+                <MapPin className="h-3 w-3" aria-hidden />
+                {location}
+              </HoverCardContent>
+            </HoverCard>
+          );
+        },
         size: 160,
       },
       {
@@ -201,7 +222,7 @@ export function JobTable({
           return (
             <HoverCard>
               <HoverCardTrigger asChild>
-                <span className="min-w-max whitespace-nowrap inline-flex items-center gap-1 text-sm text-muted-foreground line-clamp-1">
+                <span className="inline-flex items-center gap-1 text-sm text-muted-foreground line-clamp-1">
                   {formatted}
                 </span>
               </HoverCardTrigger>
@@ -755,4 +776,3 @@ function ActionsMenu({ job }: ActionsMenuProps) {
     </DropdownMenu>
   );
 }
-
