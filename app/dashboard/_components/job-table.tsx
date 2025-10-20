@@ -46,7 +46,6 @@ import {
   HoverCardContent,
   HoverCardTrigger,
 } from "@/components/ui/hover-card";
-import { cn } from "@/lib/utils";
 import {
   formatPostedAt,
   formatSalary,
@@ -105,86 +104,6 @@ export function JobTable({
   const [columnVisibility, setColumnVisibility] = React.useState<
     Record<string, boolean>
   >({});
-  const scrollContainerRef = React.useRef<HTMLDivElement>(null);
-  const dragState = React.useRef({
-    isActive: false,
-    pointerId: null as number | null,
-    startX: 0,
-    scrollLeft: 0,
-    hasMoved: false,
-  });
-  const [isDragActive, setIsDragActive] = React.useState(false);
-
-  const endDrag = React.useCallback(() => {
-    if (!dragState.current.isActive) {
-      return;
-    }
-    const container = scrollContainerRef.current;
-    if (container && dragState.current.pointerId !== null) {
-      container.releasePointerCapture(dragState.current.pointerId);
-    }
-    dragState.current.isActive = false;
-    dragState.current.pointerId = null;
-    dragState.current.hasMoved = false;
-    setIsDragActive(false);
-  }, []);
-
-  const handlePointerDown = React.useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      if (event.button !== 0) {
-        return;
-      }
-      const container = scrollContainerRef.current;
-      if (!container) {
-        return;
-      }
-      if (container.scrollWidth <= container.clientWidth) {
-        return;
-      }
-      const target = event.target as HTMLElement | null;
-      if (
-        target?.closest(
-          "button, a, input, textarea, select, [contenteditable='true'], [role='menuitem']"
-        )
-      ) {
-        return;
-      }
-
-      dragState.current.isActive = true;
-      dragState.current.pointerId = event.pointerId;
-      dragState.current.startX = event.clientX;
-      dragState.current.scrollLeft = container.scrollLeft;
-      dragState.current.hasMoved = false;
-      setIsDragActive(true);
-      container.setPointerCapture(event.pointerId);
-    },
-    []
-  );
-
-  const handlePointerMove = React.useCallback(
-    (event: React.PointerEvent<HTMLDivElement>) => {
-      if (!dragState.current.isActive) {
-        return;
-      }
-      const container = scrollContainerRef.current;
-      if (!container) {
-        return;
-      }
-      const deltaX = event.clientX - dragState.current.startX;
-      if (!dragState.current.hasMoved && Math.abs(deltaX) > 2) {
-        dragState.current.hasMoved = true;
-      }
-      if (dragState.current.hasMoved) {
-        event.preventDefault();
-      }
-      container.scrollLeft = dragState.current.scrollLeft - deltaX;
-    },
-    []
-  );
-
-  const handlePointerEnd = React.useCallback(() => {
-    endDrag();
-  }, [endDrag]);
 
   const handleUpdate = React.useCallback<EditableUpdateHandler>(
     (jobId, updates) => onUpdateJob(jobId, updates),
@@ -641,18 +560,7 @@ export function JobTable({
         ) : null}
       </div>
 
-      <div
-        ref={scrollContainerRef}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerEnd}
-        onPointerLeave={handlePointerEnd}
-        onPointerCancel={handlePointerEnd}
-        className={cn(
-          "overflow-x-auto overflow-y-hidden rounded-md border border-border/70 bg-background shadow-sm touch-pan-y",
-          isDragActive ? "cursor-grabbing select-none" : "cursor-grab"
-        )}
-      >
+      <div className="overflow-hidden rounded-md border border-border/70 bg-background shadow-sm">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
