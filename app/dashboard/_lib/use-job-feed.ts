@@ -13,9 +13,7 @@ import {
 
 import { createClient } from "@/lib/client";
 
-import { mapRowToCard } from "./helpers";
 import { getJobListings } from "./actions";
-import type { JobCardProps } from "../_components/job-card";
 import type { JobListingRow } from "./types";
 
 const PAGE_SIZE = 9;
@@ -31,7 +29,7 @@ export interface UseJobFeedResult {
   setSearchInput: Dispatch<SetStateAction<string>>;
   clearSearch: () => void;
   debouncedSearch: string;
-  cards: JobCardProps[];
+  jobs: JobListingRow[];
   fetchError: string | null;
   isLoading: boolean;
   isFetchingMore: boolean;
@@ -154,8 +152,6 @@ export function useJobFeed({
     };
   }, []);
 
-  const cards = jobs.map((row) => mapRowToCard(row));
-
   const clearSearch = useCallback(() => setSearchInput(""), [setSearchInput]);
 
   return {
@@ -163,7 +159,7 @@ export function useJobFeed({
     setSearchInput,
     clearSearch,
     debouncedSearch,
-    cards,
+    jobs,
     fetchError,
     isLoading,
     isFetchingMore,

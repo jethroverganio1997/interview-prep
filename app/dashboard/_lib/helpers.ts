@@ -1,32 +1,3 @@
-import type { JobCardProps } from "../_components/job-card";
-import type { JobListingRow } from "./types";
-
-export function mapRowToCard(row: JobListingRow): JobCardProps {
-  return {
-    id: row.id,
-    title: row.title,
-    companyName: row.company ?? "Unknown company",
-    companyUrl: row.company_url ?? undefined,
-    location: row.location ?? undefined,
-    workType: row.work_type ?? undefined,
-    workArrangement: row.work_arrangement ?? undefined,
-    salary: row.salary ?? undefined,
-    postedAt: row.posted_at ?? undefined,
-    description: summariseDescription(row.description),
-    listingUrl: row.job_url ?? row.apply_url ?? "#",
-    applyUrl: row.apply_url ?? undefined,
-    skills: row.skills ?? [],
-    status: row.status ?? undefined,
-    priority: row.priority ?? undefined,
-    lastUpdated: row.last_updated ?? undefined,
-    experienceNeeded: row.experience_needed ?? undefined,
-    appliedAt: row.applied_at ?? undefined,
-    notes: row.notes ?? undefined,
-    source: row.source ?? undefined,
-    detailHref: `/dashboard/jobs/${row.id}`,
-  };
-}
-
 export function formatSalary(value?: string | null) {
   return value ? value.trim() : null;
 }
@@ -85,18 +56,18 @@ export function getInitials(value?: string | null) {
   return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
 }
 
-function summariseDescription(value?: string | null) {
+export function summariseDescription(value?: string | null) {
   const text = (value ?? "").replace(/\s+/g, " ").trim();
 
   if (!text) {
-    return "No description provided.";
+    return "";
   }
 
-  if (text.length <= 220) {
+  if (text.length <= 140) {
     return text;
   }
 
-  return `${text.slice(0, 217)}...`;
+  return `${text.slice(0, 137)}...`;
 }
 
 export function buildSearchQuery(term?: string | null) {
@@ -175,4 +146,73 @@ export function getDomainFromUrl(value?: string | null): string | null {
   }
 
   return `${second}.${last}`;
+}
+
+export function getStatusTone(value?: string | null) {
+  const normalized = (value ?? "").toLowerCase();
+
+  switch (normalized) {
+    case "applied":
+    case "interviewing":
+      return {
+        label: capitalise(normalized),
+        className: "bg-blue-500/10 text-blue-600 border-blue-200",
+      };
+    case "offer":
+      return {
+        label: "Offer",
+        className: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+      };
+    case "rejected":
+      return {
+        label: "Rejected",
+        className: "bg-rose-500/10 text-rose-600 border-rose-200",
+      };
+    case "interested":
+    case "watching":
+      return {
+        label: capitalise(normalized),
+        className: "bg-amber-500/10 text-amber-600 border-amber-200",
+      };
+    default:
+      return {
+        label: value ?? "Untracked",
+        className: "bg-muted text-muted-foreground border-border/50",
+      };
+  }
+}
+
+export function getPriorityTone(value?: string | null) {
+  const normalized = (value ?? "").toLowerCase();
+
+  switch (normalized) {
+    case "high":
+      return {
+        label: "High",
+        className: "bg-rose-500/10 text-rose-600 border-rose-200",
+      };
+    case "medium":
+      return {
+        label: "Medium",
+        className: "bg-amber-500/10 text-amber-600 border-amber-200",
+      };
+    case "low":
+      return {
+        label: "Low",
+        className: "bg-emerald-500/10 text-emerald-600 border-emerald-200",
+      };
+    default:
+      return {
+        label: value ?? "Unset",
+        className: "bg-muted text-muted-foreground border-border/50",
+      };
+  }
+}
+
+function capitalise(value: string) {
+  if (!value.length) {
+    return value;
+  }
+
+  return value.charAt(0).toUpperCase() + value.slice(1);
 }

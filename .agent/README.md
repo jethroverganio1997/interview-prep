@@ -18,6 +18,7 @@
 - [job-description-markdown](tasks/job-description-markdown.md) - Plan for rendering markdown job descriptions in the detail view.
 - [job-source-domain](tasks/job-source-domain.md) - Plan for displaying the origin domain of job listings.
 - [remove-saved-jobs](tasks/remove-saved-jobs.md) - Retire saved jobs and align the job schema with the new contract.
+- [dashboard-data-table](tasks/dashboard-data-table.md) - Replace dashboard cards with a shadcn-powered data table.
 
 ## How to Use
 1. Start with **architecture-overview** for a project tour.
