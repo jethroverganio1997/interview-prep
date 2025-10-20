@@ -66,3 +66,11 @@ create policy "Allow authenticated job list reads"
 create index job_listings_search_vector_idx
   on public.job_listings
   using gin (search_vector);
+
+-- Allow authenticated users to update tracking fields on job listings.
+create policy "Allow authenticated job updates"
+on public.job_listings
+for update
+to authenticated
+using (true)
+with check (true);

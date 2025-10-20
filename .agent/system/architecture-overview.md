@@ -28,17 +28,18 @@ lib/
 - `app/<route>/_lib/` gathers non-visual logic (types, data fetchers, hooks, helpers). Each module leans on generated Supabase types imported from `types/database.types.ts`.
 - `app/dashboard/page.tsx` validates the session, performs the first `job_listings` fetch on the server, and hydrates the client feed with initial data and any error message.
 - `app/dashboard/_components/job-feed.tsx` wires the Supabase-backed search + pagination hook to the client UI and renders the data table.
-- `app/dashboard/_components/job-table.tsx` renders the TanStack-powered shadcn data table, providing column-per-field output, multi-select column filters, column visibility controls, and row actions for viewing or applying to a job.
+- `app/dashboard/_components/job-table.tsx` renders the TanStack-powered shadcn data table, providing column-per-field output, multi-select column filters, column visibility controls, row actions, and popover-based inline editors that persist status/priority/date/note changes back to Supabase without shifting the layout.
 - `app/dashboard/_components/job-detail.tsx` renders the full role overview, personal tracking metadata, and source links.
-- `app/dashboard/_lib/use-job-feed.ts` owns client-side state: debounced search term, pagination, and fetch status while returning raw Supabase rows for the table.
-- `app/dashboard/_lib/actions.ts` exposes shared server/client query helpers that respect the new `id`/`title` schema and search vector.
-- `components/empty-state.tsx` and `components/ui/*` provide shared presentation primitives.
+- `app/dashboard/_lib/use-job-feed.ts` owns client-side state: debounced search term, pagination, inline update helpers, and fetch status while returning raw Supabase rows for the table.
+- `app/dashboard/_lib/actions.ts` exposes shared server/client query helpers that respect the new `id`/`title` schema, including inline update support for tracking fields.
+- `components/empty-state.tsx` and `components/ui/*` provide shared presentation primitives (including the Radix-backed popover wrapper used by the editable table cells).
 
 ## Data Flow
 1. Server routes create an authenticated Supabase client via `@/lib/server`. If the user is not authenticated, the request redirects to `/auth/login`.
 2. The dashboard server component fetches the first page of `job_listings` records (limit 9) and passes them to the client boundary.
 3. The client boundary (`JobFeed`) uses `@/lib/client` to create a browser Supabase client, running searches and pagination by calling `getJobListings`. Results feed the column-rich `JobTable`, which applies client-side filters and column visibility controls.
 4. Selecting a job uses Next.js routing (`/dashboard/jobs/[jobId]`) to render the server-driven detail page. The page fetches the single record via `getJobListingById` and displays it with `JobDetail` or falls back to a not-found boundary.
+5. Inline edits on the table invoke `updateJobListing` through the `useJobFeed` hook, which merges the refreshed row into local state so filters, counts, and pagination stay intact without a full refetch.
 
 ## State Management
 - Server components fetch exactly what they need per request; no server-side caches are maintained in memory.

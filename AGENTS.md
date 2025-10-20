@@ -63,4 +63,3 @@ We keep all important docs in the `.agent` folder and update them continuously. 
 - When assigned a feature task, create a detailed implementation plan and save it as `.agent/tasks/<name>.md`.
 - Request approval on the plan before writing code.
 - Use `.agent/commands/update-doc.md` to follow the official documentation workflow.
-- Generate Supabase database types via the CLI and alias them from `app/<route>/_lib/types.ts` instead of hand-coding interfaces.

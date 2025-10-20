@@ -21,6 +21,7 @@ export function JobFeed(props: JobFeedProps) {
     isFetchingMore,
     hasMore,
     loadMoreRef,
+    updateJob,
   } = useJobFeed(props)
 
   const showEmptyState =
@@ -36,6 +37,7 @@ export function JobFeed(props: JobFeedProps) {
         setSearchInput={setSearchInput}
         clearSearch={clearSearch}
         fetchError={fetchError}
+        onUpdateJob={updateJob}
       />
 
       {showEmptyState ? (

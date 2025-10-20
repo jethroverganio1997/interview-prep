@@ -25,7 +25,7 @@ Supabase provisioned tables handle authentication plumbing:
   - `source text` - originating platform identifier (LinkedIn, Indeed, etc.).
   - `status text`, `applied_at text`, `notes text`, `priority text`, `last_updated text` - personal tracking fields maintained inside the product.
   - `search_vector tsvector` - generated column weighting title/company/location/description for full-text search (GIN indexed via `job_listings_search_vector_idx`).
-- **RLS:** Policy `Allow authenticated job list reads` lets authenticated users `select` all rows; writes remain application controlled.
+- **RLS:** Policy `Allow authenticated job list reads` lets authenticated users `select` all rows. Policy `Allow authenticated job updates` now enables inline dashboard edits to update tracking fields for any listing.
 - **Legacy note:** The `saved_jobs` table introduced in 2025-11 has been removed. Bookmarks are no longer part of the data model.
 
 ## Creating New Schema

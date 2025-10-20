@@ -4,6 +4,8 @@ import { buildSearchQuery } from "./helpers";
 import type {
   JobListFilters,
   JobListingDetailResult,
+  JobListingUpdatePayload,
+  JobListingUpdateResult,
   JobListingsResult,
 } from "./types";
 
@@ -61,6 +63,41 @@ export async function getJobListingById(
     .from("job_listings")
     .select("*")
     .eq("id", jobId)
+    .maybeSingle();
+
+  if (response.error) {
+    return {
+      data: null,
+      error: response.error,
+    };
+  }
+
+  return {
+    data: response.data ?? null,
+    error: null,
+  };
+}
+
+export async function updateJobListing(
+  client: SupabaseClient<Database>,
+  payload: JobListingUpdatePayload
+): Promise<JobListingUpdateResult> {
+  const sanitizedUpdates = Object.fromEntries(
+    Object.entries(payload.updates).filter(([, value]) => value !== undefined)
+  ) as JobListingUpdatePayload["updates"];
+
+  if (Object.keys(sanitizedUpdates).length === 0) {
+    return {
+      data: null,
+      error: null,
+    };
+  }
+
+  const response = await client
+    .from("job_listings")
+    .update(sanitizedUpdates)
+    .eq("id", payload.id)
+    .select("*")
     .maybeSingle();
 
   if (response.error) {

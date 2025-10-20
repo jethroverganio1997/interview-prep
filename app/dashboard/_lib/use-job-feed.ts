@@ -13,8 +13,12 @@ import {
 
 import { createClient } from "@/lib/client";
 
-import { getJobListings } from "./actions";
-import type { JobListingRow } from "./types";
+import { getJobListings, updateJobListing } from "./actions";
+import type {
+  JobListingEditableFields,
+  JobListingRow,
+  JobListingUpdateResult,
+} from "./types";
 
 const PAGE_SIZE = 9;
 
@@ -35,6 +39,10 @@ export interface UseJobFeedResult {
   isFetchingMore: boolean;
   hasMore: boolean;
   loadMoreRef: MutableRefObject<HTMLDivElement | null>;
+  updateJob: (
+    jobId: string,
+    updates: Partial<JobListingEditableFields>
+  ) => Promise<JobListingUpdateResult>;
 }
 
 export function useJobFeed({
@@ -56,6 +64,24 @@ export function useJobFeed({
   const initialRenderRef = useRef(true);
 
   const resetError = useCallback(() => setFetchError(null), []);
+
+  const updateJob = useCallback(
+    async (
+      jobId: string,
+      updates: Partial<JobListingEditableFields>
+    ): Promise<JobListingUpdateResult> => {
+      const result = await updateJobListing(supabase, { id: jobId, updates });
+
+      if (result.data) {
+        setJobs((previous) =>
+          previous.map((job) => (job.id === jobId ? result.data! : job))
+        );
+      }
+
+      return result;
+    },
+    [supabase]
+  );
 
   const refreshListings = useCallback(async () => {
     setIsLoading(true);
@@ -165,6 +191,7 @@ export function useJobFeed({
     isFetchingMore,
     hasMore,
     loadMoreRef,
+    updateJob,
   };
 }
 
