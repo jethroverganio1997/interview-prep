@@ -9,7 +9,7 @@ import type {
   JobListingsResult,
 } from "./types";
 
-const DEFAULT_PAGE_SIZE = 9;
+const DEFAULT_PAGE_SIZE = 10;
 
 export async function getJobListings(
   client: SupabaseClient<Database>,

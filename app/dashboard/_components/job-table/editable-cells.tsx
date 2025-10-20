@@ -14,12 +14,12 @@ import {
 } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
 
-import { getPriorityTone, getStatusTone } from "../_lib/helpers";
+import { getPriorityTone, getStatusTone } from "../../_lib/helpers";
 import type {
   JobListingEditableFields,
   JobListingRow,
   JobListingUpdateResult,
-} from "../_lib/types";
+} from "../../_lib/types";
 
 import {
   fromDateInputValue,
@@ -156,7 +156,7 @@ function EditableStatusCell({ job, onUpdate }: EditableStatusCellProps) {
       <PopoverContent align="start" className="w-[280px] space-y-3">
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold tracking-wide text-muted-foreground">
               Status
             </label>
             <input
@@ -173,6 +173,19 @@ function EditableStatusCell({ job, onUpdate }: EditableStatusCellProps) {
                 <option key={option} value={option} />
               ))}
             </datalist>
+            <div className="flex flex-wrap gap-1">
+              {STATUS_SUGGESTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className="rounded-full border border-border/60 bg-background px-2 py-1 text-[11px] text-muted-foreground transition hover:border-border hover:text-foreground"
+                  onClick={() => setDraft(option)}
+                  disabled={isSaving}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
           </div>
           {errorMessage ? (
             <p className="text-xs text-destructive/90">{errorMessage}</p>
@@ -328,7 +341,7 @@ function EditablePriorityCell({ job, onUpdate }: EditablePriorityCellProps) {
       <PopoverContent align="start" className="w-[280px] space-y-3">
         <form className="space-y-3" onSubmit={handleSubmit}>
           <div className="space-y-2">
-            <label className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+            <label className="text-xs font-semibold tracking-wide text-muted-foreground">
               Priority
             </label>
             <input
@@ -345,6 +358,19 @@ function EditablePriorityCell({ job, onUpdate }: EditablePriorityCellProps) {
                 <option key={option} value={option} />
               ))}
             </datalist>
+            <div className="flex flex-wrap gap-1">
+              {PRIORITY_SUGGESTIONS.map((option) => (
+                <button
+                  key={option}
+                  type="button"
+                  className="rounded-full border border-border/60 bg-background px-2 py-1 text-[11px] text-muted-foreground transition hover:border-border hover:text-foreground"
+                  onClick={() => setDraft(option)}
+                  disabled={isSaving}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
           </div>
           {errorMessage ? (
             <p className="text-xs text-destructive/90">{errorMessage}</p>

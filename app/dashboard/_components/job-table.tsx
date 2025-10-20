@@ -217,6 +217,12 @@ export function JobTable({
         },
       },
       {
+        accessorKey: "source",
+        header: "Source",
+        cell: ({ row }) => row.original.source ?? "--",
+        size: 140,
+      },
+      {
         accessorKey: "status",
         header: "Status",
         cell: ({ row }) => (
@@ -297,12 +303,6 @@ export function JobTable({
           />
         ),
         size: 150,
-      },
-      {
-        accessorKey: "source",
-        header: "Source",
-        cell: ({ row }) => row.original.source ?? "--",
-        size: 140,
       },
       {
         accessorKey: "notes",
@@ -566,7 +566,7 @@ function FilterChip({ label, options, selected, onToggle }: FilterChipProps) {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="start" className="w-48 p-0">
-        <DropdownMenuLabel className="px-3 py-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+        <DropdownMenuLabel className="px-3 py-2 text-xs font-semibold tracking-wide text-muted-foreground">
           {label}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
